@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Textos por defecto (español). Cada idioma adicional va en values-<idioma>/strings.xml;
+     ningún texto visible se escribe directamente en el código o en los layouts. -->
+<resources>
+    <string name="app_name">Solventa</string>
+    <string name="marca">Solventa</string>
+    <string name="inicio_subtitulo">Autoservicio para clientes asegurados</string>
+</resources>

@@ -1,0 +1,19 @@
+# Gradle y Android Studio
+.gradle/
+/build/
+/app/build/
+/local.properties
+/.idea/
+*.iml
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# Llaves de firma: nunca en el repositorio (van como secretos del ambiente "release")
+*.jks
+*.keystore
+keystore.properties
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

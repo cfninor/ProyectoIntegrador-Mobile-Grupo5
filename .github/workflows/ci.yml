@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: "17"
+
+jobs:
+  calidad:
+    name: Android Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+      - run: ./gradlew lintDevDebug
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reporte-lint
+          path: app/build/reports/lint-results-devDebug.html
+          retention-days: 7
+
+  pruebas:
+    name: Pruebas unitarias (JUnit) con cobertura
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+      - run: ./gradlew testDevDebugUnitTest createDevDebugUnitTestCoverageReport
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: cobertura-mobile
+          path: |
+            app/build/reports/coverage/
+            app/build/reports/tests/
+          retention-days: 7
+
+  build:
+    name: Build (APK dev)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+      - run: ./gradlew assembleDevDebug
+      - uses: actions/upload-artifact@v7
+        with:
+          name: apk-dev-debug
+          path: app/build/outputs/apk/dev/debug/*.apk
+          retention-days: 7
+
+  # Único check obligatorio en la regla de protección de main.
+  ci-gate:
+    name: ci-gate
+    if: always()
+    needs: [calidad, pruebas, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar resultados
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "Al menos un job falló o se canceló."
+            exit 1
+          fi
+          echo "Todos los jobs pasaron."
