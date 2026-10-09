@@ -71,6 +71,41 @@ jobs:
           path: app/build/outputs/apk/dev/debug/*.apk
           retention-days: 7
 
+  # Análisis de calidad y cobertura. No forma parte de ci-gate: informa, no bloquea el merge.
+  sonarqube:
+    name: SonarQube Cloud
+    needs: pruebas
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - name: Sin token, se omite el análisis
+        if: env.SONAR_TOKEN == ''
+        run: echo "::notice::No hay SONAR_TOKEN disponible (por ejemplo, en un PR de Dependabot). Se omite el análisis."
+      - uses: actions/checkout@v7
+        if: env.SONAR_TOKEN != ''
+        with:
+          fetch-depth: 0  # la historia completa permite detectar el código nuevo
+      - name: Descargar el reporte de cobertura de JaCoCo
+        if: env.SONAR_TOKEN != ''
+        uses: actions/download-artifact@v8
+        with:
+          name: cobertura-mobile
+          path: app/build/reports
+      - name: Ubicar el XML de JaCoCo
+        id: jacoco
+        if: env.SONAR_TOKEN != ''
+        run: |
+          XML=$(find app/build/reports/coverage -name '*.xml' | head -n 1)
+          if [ -z "$XML" ]; then echo "::warning::No se encontró el XML de JaCoCo; el análisis irá sin cobertura."; fi
+          echo "xml=$XML" >> "$GITHUB_OUTPUT"
+      - name: Análisis en SonarQube Cloud
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@v8
+        with:
+          args: >
+            -Dsonar.coverage.jacoco.xmlReportPaths=${{ steps.jacoco.outputs.xml }}
+
   # Único check obligatorio en la regla de protección de main.
   ci-gate:
     name: ci-gate
