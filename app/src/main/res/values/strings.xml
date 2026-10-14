@@ -5,4 +5,40 @@
     <string name="app_name">Solventa</string>
     <string name="marca">Solventa</string>
     <string name="inicio_subtitulo">Autoservicio para clientes asegurados</string>
+    <string name="inicio_iniciar_onboarding">Iniciar onboarding</string>
+
+    <!-- Onboarding digital (SOLVENTAG5-89) -->
+    <string name="onboarding_titulo">Inicia tu onboarding</string>
+    <string name="onboarding_subtitulo">Ingresa tus datos básicos para contratar sin ir a una oficina.</string>
+    <string name="onboarding_seccion_documento">Documento</string>
+    <string name="onboarding_seccion_nombre">Nombre</string>
+    <string name="onboarding_seccion_contacto">Contacto</string>
+    <string name="onboarding_tipo_documento">Tipo de documento</string>
+    <string name="onboarding_numero_documento">Número de documento</string>
+    <string name="onboarding_nombres">Nombres</string>
+    <string name="onboarding_apellidos">Apellidos</string>
+    <string name="onboarding_correo">Correo electrónico</string>
+    <string name="onboarding_celular">Celular</string>
+    <string name="onboarding_continuar">Continuar</string>
+    <string name="onboarding_enviando">Enviando tus datos…</string>
+
+    <string name="onboarding_tipo_cc">Cédula de ciudadanía</string>
+    <string name="onboarding_tipo_ce">Cédula de extranjería</string>
+    <string name="onboarding_tipo_pa">Pasaporte</string>
+    <string name="onboarding_tipo_ppt">Permiso por protección temporal</string>
+
+    <string name="onboarding_error_obligatorio">Este campo es obligatorio</string>
+    <string name="onboarding_error_documento">Debe tener entre 6 y 10 dígitos</string>
+    <string name="onboarding_error_pasaporte">Debe tener entre 6 y 12 letras o números</string>
+    <string name="onboarding_error_nombre">Usa solo letras, entre 2 y 60 caracteres</string>
+    <string name="onboarding_error_correo">Escribe un correo válido, por ejemplo nombre@correo.com</string>
+    <string name="onboarding_error_celular">Debe ser un celular de 10 dígitos que empiece por 3</string>
+    <string name="onboarding_error_formato">Revisa los campos marcados.</string>
+    <string name="onboarding_error_no_disponible">El servicio no está disponible. Intenta de nuevo en unos minutos.</string>
+    <string name="onboarding_error_red_local">Para conectarse al servidor de desarrollo, la app necesita el permiso de red local.</string>
+    <string name="onboarding_error_sin_conexion">No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.</string>
+
+    <string name="onboarding_exito_titulo">¡Listo! Iniciaste tu onboarding</string>
+    <string name="onboarding_exito_mensaje">Guardamos tus datos de forma segura. El siguiente paso es verificar tu identidad.</string>
+    <string name="onboarding_exito_estado">Estado: onboarding en curso</string>
 </resources>
