@@ -8,6 +8,7 @@ import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,7 +28,9 @@ import java.util.concurrent.Executors
 class OnboardingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityOnboardingBinding
-    private val cliente by lazy { ClienteOnboarding(AppConfig.actual().apiBaseUrl) }
+    /** Las pruebas lo reemplazan por un cliente que apunta a un BFF de prueba. */
+    @VisibleForTesting
+    internal var cliente = ClienteOnboarding(AppConfig.actual().apiBaseUrl)
     private val hilo: ExecutorService = Executors.newSingleThreadExecutor()
 
     /** Campos que el cliente ya tocó: solo a esos se les muestra el error, no al abrir. */
