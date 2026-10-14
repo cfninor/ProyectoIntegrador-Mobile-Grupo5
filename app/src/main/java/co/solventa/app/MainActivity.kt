@@ -1,11 +1,13 @@
 package co.solventa.app
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import co.solventa.app.databinding.ActivityMainBinding
+import co.solventa.app.features.onboarding.OnboardingActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,6 +23,10 @@ class MainActivity : AppCompatActivity() {
             val barras = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             vista.setPadding(barras.left, barras.top, barras.right, barras.bottom)
             insets
+        }
+
+        binding.iniciarOnboarding.setOnClickListener {
+            startActivity(Intent(this, OnboardingActivity::class.java))
         }
     }
 }

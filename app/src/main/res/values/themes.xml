@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Solventa" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <!-- Campo de texto de los formularios. -->
+    <style name="Solventa.CampoFormulario" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">12dp</item>
+    </style>
+
+    <!-- Título de cada grupo de campos de un formulario. -->
+    <style name="Solventa.SeccionFormulario" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+    </style>
 </resources>

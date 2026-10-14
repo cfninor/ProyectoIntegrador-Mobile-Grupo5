@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Onboarding digital (SOLVENTAG5-89): datos básicos del cliente. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/raiz"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:id="@+id/formulario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/titulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/onboarding_titulo"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/onboarding_subtitulo"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+            <TextView
+                style="@style/Solventa.SeccionFormulario"
+                android:text="@string/onboarding_seccion_documento" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/campoTipoDocumento"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/onboarding_tipo_documento">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/tipoDocumento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/campoNumeroDocumento"
+                style="@style/Solventa.CampoFormulario"
+                android:hint="@string/onboarding_numero_documento">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/numeroDocumento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:inputType="textNoSuggestions|textCapCharacters"
+                    android:maxLength="12" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Solventa.SeccionFormulario"
+                android:text="@string/onboarding_seccion_nombre" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/campoNombres"
+                style="@style/Solventa.CampoFormulario"
+                android:layout_marginTop="0dp"
+                android:hint="@string/onboarding_nombres">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/nombres"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="personGivenName"
+                    android:inputType="textPersonName|textCapWords"
+                    android:maxLength="60" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/campoApellidos"
+                style="@style/Solventa.CampoFormulario"
+                android:hint="@string/onboarding_apellidos">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/apellidos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="personFamilyName"
+                    android:inputType="textPersonName|textCapWords"
+                    android:maxLength="60" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Solventa.SeccionFormulario"
+                android:text="@string/onboarding_seccion_contacto" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/campoCorreo"
+                style="@style/Solventa.CampoFormulario"
+                android:layout_marginTop="0dp"
+                android:hint="@string/onboarding_correo">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/correo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="emailAddress"
+                    android:inputType="textEmailAddress"
+                    android:maxLength="254" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/campoCelular"
+                style="@style/Solventa.CampoFormulario"
+                android:hint="@string/onboarding_celular">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/celular"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="phoneNational"
+                    android:imeOptions="actionDone"
+                    android:inputType="phone"
+                    android:maxLength="10" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/mensajeError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:accessibilityLiveRegion="polite"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/continuar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:enabled="false"
+                android:text="@string/onboarding_continuar" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progreso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:contentDescription="@string/onboarding_enviando"
+                android:indeterminate="true"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/exito"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="48dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/onboarding_exito_titulo"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="@string/onboarding_exito_mensaje"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/onboarding_exito_estado"
+                android:textAppearance="?attr/textAppearanceLabelLarge" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
