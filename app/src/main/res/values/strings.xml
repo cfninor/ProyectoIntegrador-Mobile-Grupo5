@@ -35,6 +35,7 @@
     <string name="onboarding_error_celular">Debe ser un celular de 10 dígitos que empiece por 3</string>
     <string name="onboarding_error_formato">Revisa los campos marcados.</string>
     <string name="onboarding_error_no_disponible">El servicio no está disponible. Intenta de nuevo en unos minutos.</string>
+    <string name="onboarding_error_red_local">Para conectarse al servidor de desarrollo, la app necesita el permiso de red local.</string>
     <string name="onboarding_error_sin_conexion">No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.</string>
 
     <string name="onboarding_exito_titulo">¡Listo! Iniciaste tu onboarding</string>

@@ -37,7 +37,9 @@ Consume únicamente el **BFF móvil** (conector C1) del repositorio principal de
 | `prod` | `co.solventa.app` | Se define cuando exista el ambiente PROD en AWS |
 
 El tráfico en claro (HTTP) solo se permite en `dev` y solo hacia el equipo local; los demás
-ambientes exigen HTTPS. La app no permite respaldo en la nube ni transferencia de datos entre
+ambientes exigen HTTPS. Desde Android 17, `dev` además pide el permiso de red local
+(`ACCESS_LOCAL_NETWORK`) la primera vez que llama al BFF: sin él, el emulador no llega a
+`10.0.2.2`. QA y PROD no lo declaran. La app no permite respaldo en la nube ni transferencia de datos entre
 dispositivos.
 
 ## Comandos

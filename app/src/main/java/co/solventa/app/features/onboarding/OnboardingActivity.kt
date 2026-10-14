@@ -1,9 +1,12 @@
 package co.solventa.app.features.onboarding
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -31,6 +34,13 @@ class OnboardingActivity : AppCompatActivity() {
     private val tocados = mutableSetOf<Campo>()
     private var tipoDocumento: TipoDocumento? = null
     private var enviando = false
+
+    /** Solo en dev: Android 17 pide permiso para llegar al BFF local (ver src/dev/AndroidManifest). */
+    private val pedirRedLocal = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { concedido ->
+        if (concedido) enviar() else mostrarError(R.string.onboarding_error_red_local)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,6 +124,10 @@ class OnboardingActivity : AppCompatActivity() {
     private fun enviar() {
         val datos = datos()
         if (ValidadorOnboarding.validar(datos).isNotEmpty()) return
+        if (faltaPermisoRedLocal()) {
+            pedirRedLocal.launch(PERMISO_RED_LOCAL)
+            return
+        }
         mostrarEnviando(true)
         hilo.execute {
             val resultado = cliente.iniciar(datos)
@@ -147,6 +161,16 @@ class OnboardingActivity : AppCompatActivity() {
             binding.campoTipoDocumento, binding.campoNumeroDocumento, binding.campoNombres,
             binding.campoApellidos, binding.campoCorreo, binding.campoCelular,
         ).forEach { it.isEnabled = !activo }
+    }
+
+    /** El permiso solo aplica desde Android 17 y solo si el flavor lo declara (dev). */
+    private fun faltaPermisoRedLocal(): Boolean {
+        if (Build.VERSION.SDK_INT < ANDROID_17) return false
+        val declarados = packageManager
+            .getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong()))
+            .requestedPermissions.orEmpty()
+        return PERMISO_RED_LOCAL in declarados &&
+            checkSelfPermission(PERMISO_RED_LOCAL) != PackageManager.PERMISSION_GRANTED
     }
 
     private fun mostrarError(@StringRes mensaje: Int) {
@@ -184,5 +208,7 @@ class OnboardingActivity : AppCompatActivity() {
     private companion object {
         const val ESTADO_TIPO = "tipoDocumento"
         const val ESTADO_TOCADOS = "tocados"
+        const val ANDROID_17 = 37
+        const val PERMISO_RED_LOCAL = "android.permission.ACCESS_LOCAL_NETWORK"
     }
 }

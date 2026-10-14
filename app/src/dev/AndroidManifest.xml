@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solo en dev: Android 17 exige este permiso (en tiempo de ejecución) para conectarse a la red
+     local, y el bff-movil del docker-compose se ve desde el emulador como 10.0.2.2. QA y PROD
+     usan HTTPS público y no lo necesitan. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+
+</manifest>
