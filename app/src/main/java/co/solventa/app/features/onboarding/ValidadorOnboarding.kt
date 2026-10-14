@@ -21,7 +21,7 @@ object ValidadorOnboarding {
     private const val NOMBRE_MAX = 60
     private const val CORREO_MAX = 254
 
-    /** Devuelve el error de cada campo inválido; un mapa vacío significa que todo es válido. */
+    /** Devuelve el error de cada campo inválido; un mapa vacío significa que no hay errores. */
     fun validar(datos: DatosBasicos): Map<Campo, ErrorCampo> = buildMap {
         errorTipoDocumento(datos.tipoDocumento)?.let { put(Campo.TIPO_DOCUMENTO, it) }
         errorNumeroDocumento(datos.tipoDocumento, datos.numeroDocumento)

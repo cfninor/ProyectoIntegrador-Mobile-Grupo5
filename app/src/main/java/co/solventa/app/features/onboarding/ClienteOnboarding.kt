@@ -4,7 +4,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 /** Resultado de pedir al BFF móvil que inicie el onboarding. */
 sealed interface ResultadoOnboarding {
@@ -32,7 +32,7 @@ class ClienteOnboarding(
 
     fun iniciar(datos: DatosBasicos): ResultadoOnboarding {
         val conexion = try {
-            URL("$apiBaseUrl$RUTA").openConnection() as HttpURLConnection
+            URI("$apiBaseUrl$RUTA").toURL().openConnection() as HttpURLConnection
         } catch (_: IOException) {
             return ResultadoOnboarding.SinConexion
         }

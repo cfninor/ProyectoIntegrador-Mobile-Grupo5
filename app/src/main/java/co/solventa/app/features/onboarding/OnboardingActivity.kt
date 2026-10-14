@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
 
 /**
  * Pantalla «Iniciar onboarding» (SOLVENTAG5-89): el cliente ingresa sus datos básicos, la app
- * valida el formato de cada campo y solo deja continuar cuando todo es válido; luego pide al BFF
+ * valida el formato de cada campo y solo deja continuar cuando los seis campos son válidos; luego pide al BFF
  * móvil crear el Cliente en estado «onboarding en curso».
  */
 class OnboardingActivity : AppCompatActivity() {
@@ -113,7 +113,7 @@ class OnboardingActivity : AppCompatActivity() {
         celular = binding.celular.text?.toString().orEmpty(),
     )
 
-    /** Criterio 2: marca los campos inválidos y habilita «Continuar» solo si todo es válido. */
+    /** Criterio 2: marca los campos inválidos y habilita «Continuar» solo si los campos son válidos. */
     private fun actualizar() {
         val errores = ValidadorOnboarding.validar(datos())
         Campo.entries.forEach { campo ->
