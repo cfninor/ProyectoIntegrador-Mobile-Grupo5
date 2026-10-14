@@ -12,10 +12,14 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <!-- Focusable para que ningún campo quede seleccionado al abrir: así no aparece el teclado
+             ni se marca un campo como tocado sin que el cliente lo haya usado. -->
         <LinearLayout
             android:id="@+id/formulario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="vertical">
 
             <TextView

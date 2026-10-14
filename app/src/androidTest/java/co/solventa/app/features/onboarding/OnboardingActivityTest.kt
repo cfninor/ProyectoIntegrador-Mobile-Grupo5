@@ -9,6 +9,7 @@ import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.hasFocus
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
@@ -19,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import co.solventa.app.R
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,6 +55,15 @@ class OnboardingActivityTest {
     fun continuarEstaDeshabilitadoAlAbrir() {
         onView(withText(R.string.onboarding_titulo)).check(matches(isDisplayed()))
         onView(withId(R.id.continuar)).check(matches(isNotEnabled()))
+    }
+
+    @Test
+    fun alAbrirNingunCampoQuedaSeleccionadoNiMuestraErrores() {
+        listOf(
+            R.id.numeroDocumento, R.id.nombres, R.id.apellidos, R.id.correo, R.id.celular,
+        ).forEach { campo -> onView(withId(campo)).check(matches(not(hasFocus()))) }
+        onView(withId(R.id.campoApellidos))
+            .check(matches(not(hasDescendant(withText(R.string.onboarding_error_obligatorio)))))
     }
 
     @Test
