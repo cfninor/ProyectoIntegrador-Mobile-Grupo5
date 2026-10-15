@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doAfterTextChanged
 import co.solventa.app.R
 import co.solventa.app.core.config.AppConfig
+import co.solventa.app.core.red.PermisoRedLocal
 import co.solventa.app.databinding.ActivityCotizacionBinding
 import com.google.android.material.textfield.TextInputLayout
 import java.util.concurrent.ExecutorService
@@ -35,6 +37,13 @@ class CotizacionActivity : AppCompatActivity() {
     /** El del onboarding, si el cliente viene de ahí; sin él la prima usa el perfil por defecto. */
     private val clienteId: String? by lazy { intent.getStringExtra(EXTRA_CLIENTE_ID) }
     private var cotizando = false
+
+    /** Solo en dev: Android 17 pide permiso para llegar al BFF local (ver src/dev/AndroidManifest). */
+    private val pedirRedLocal = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { concedido ->
+        if (concedido) cotizar() else mostrarError(R.string.error_red_local)
+    }
 
     /** Campos que el cliente ya tocó: solo a esos se les muestra el error, no al abrir. */
     private val tocados = mutableSetOf<CampoCotizacion>()
@@ -112,6 +121,10 @@ class CotizacionActivity : AppCompatActivity() {
     private fun cotizar() {
         if (cotizando) return
         val solicitud = ValidadorCotizacion.solicitud(datos(), clienteId) ?: return
+        if (PermisoRedLocal.falta(this)) {
+            pedirRedLocal.launch(PermisoRedLocal.PERMISO)
+            return
+        }
         binding.mensajeError.visibility = View.GONE
         mostrarCotizando(true)
         hilo.execute {
