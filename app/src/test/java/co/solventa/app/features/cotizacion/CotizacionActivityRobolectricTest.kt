@@ -9,11 +9,13 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import co.solventa.app.R
+import com.google.android.material.textfield.TextInputLayout
 import com.sun.net.httpserver.HttpServer
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,6 +82,9 @@ class CotizacionActivityRobolectricTest {
         escribir(R.id.ciudad, "Bogotá")
         escribir(R.id.entidad, "Banco de Ejemplo")
     }
+
+    private fun CotizacionActivity.error(idCampo: Int): String? =
+        findViewById<TextInputLayout>(idCampo).error?.toString()
 
     private fun CotizacionActivity.texto(id: Int) = findViewById<TextView>(id).text.toString()
 
@@ -166,14 +171,85 @@ class CotizacionActivityRobolectricTest {
     }
 
     @Test
-    fun `con datos incompletos no envía nada`() {
+    fun `al abrir cotizar está deshabilitado y no hay errores`() {
+        abrir(bffFalso(201, cotizada)) { actividad ->
+            assertFalse(actividad.findViewById<View>(R.id.cotizar).isEnabled)
+            listOf(R.id.campoMonto, R.id.campoPlazo, R.id.campoCiudad, R.id.campoEntidad).forEach {
+                assertNull(actividad.error(it))
+            }
+        }
+    }
+
+    @Test
+    fun `con datos incompletos cotizar sigue deshabilitado y no envía nada`() {
         abrir(bffFalso(201, cotizada)) { actividad ->
             actividad.escribir(R.id.monto, "200000000")
-            actividad.findViewById<View>(R.id.cotizar).performClick()
+            val boton = actividad.findViewById<View>(R.id.cotizar)
+            boton.performClick()
             shadowOf(Looper.getMainLooper()).idle()
 
+            assertFalse(boton.isEnabled)
             assertTrue(recibido.isEmpty())
-            assertTrue(actividad.visible(R.id.formulario))
+        }
+    }
+
+    @Test
+    fun `cada campo fuera de rango muestra su mensaje y no deja cotizar`() {
+        abrir(bffFalso(201, cotizada)) { actividad ->
+            actividad.llenarValidos()
+            actividad.escribir(R.id.monto, "5000000")
+            actividad.escribir(R.id.plazo, "40")
+            actividad.escribir(R.id.ciudad, "B")
+            actividad.escribir(R.id.entidad, "")
+
+            assertEquals(actividad.getString(R.string.cotizacion_error_monto), actividad.error(R.id.campoMonto))
+            assertEquals(actividad.getString(R.string.cotizacion_error_plazo), actividad.error(R.id.campoPlazo))
+            assertEquals(actividad.getString(R.string.cotizacion_error_ciudad), actividad.error(R.id.campoCiudad))
+            assertEquals(actividad.getString(R.string.cotizacion_error_obligatorio), actividad.error(R.id.campoEntidad))
+            assertFalse(actividad.findViewById<View>(R.id.cotizar).isEnabled)
+
+            actividad.llenarValidos()
+            assertNull(actividad.error(R.id.campoMonto))
+            assertTrue(actividad.findViewById<View>(R.id.cotizar).isEnabled)
+        }
+    }
+
+    @Test
+    fun `los campos de texto no admiten más caracteres que el contrato`() {
+        abrir(bffFalso(201, cotizada)) { actividad ->
+            actividad.llenarValidos()
+            actividad.escribir(R.id.entidad, "x".repeat(130))
+            actividad.escribir(R.id.ciudad, "y".repeat(90))
+
+            assertEquals(120, actividad.findViewById<EditText>(R.id.entidad).text.length)
+            assertEquals(80, actividad.findViewById<EditText>(R.id.ciudad).text.length)
+            assertNull(actividad.error(R.id.campoEntidad))
+            assertTrue(actividad.findViewById<View>(R.id.cotizar).isEnabled)
+        }
+    }
+
+    @Test
+    fun `al salir de un campo vacío muestra que es obligatorio`() {
+        abrir(bffFalso(201, cotizada)) { actividad ->
+            val plazo = actividad.findViewById<EditText>(R.id.plazo)
+            plazo.requestFocus()
+            actividad.findViewById<EditText>(R.id.ciudad).requestFocus()
+
+            assertEquals(actividad.getString(R.string.cotizacion_error_obligatorio), actividad.error(R.id.campoPlazo))
+            assertNull(actividad.error(R.id.campoMonto))
+        }
+    }
+
+    @Test
+    fun `conserva los errores al recrear la pantalla`() {
+        ActivityScenario.launch<CotizacionActivity>(
+            CotizacionActivity.intent(ApplicationProvider.getApplicationContext()),
+        ).use { escenario ->
+            escenario.onActivity { it.escribir(R.id.plazo, "40") }
+            escenario.recreate()
+            escenario.onActivity { actividad ->
+                assertEquals(actividad.getString(R.string.cotizacion_error_plazo), actividad.error(R.id.campoPlazo))
+            }
         }
     }
 

@@ -4,15 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doAfterTextChanged
 import co.solventa.app.R
 import co.solventa.app.core.config.AppConfig
 import co.solventa.app.databinding.ActivityCotizacionBinding
+import com.google.android.material.textfield.TextInputLayout
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -33,6 +36,9 @@ class CotizacionActivity : AppCompatActivity() {
     private val clienteId: String? by lazy { intent.getStringExtra(EXTRA_CLIENTE_ID) }
     private var cotizando = false
 
+    /** Campos que el cliente ya tocó: solo a esos se les muestra el error, no al abrir. */
+    private val tocados = mutableSetOf<CampoCotizacion>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -45,8 +51,18 @@ class CotizacionActivity : AppCompatActivity() {
             insets
         }
 
+        savedInstanceState?.getStringArrayList(ESTADO_TOCADOS)?.mapTo(tocados, CampoCotizacion::valueOf)
+        observar(binding.monto, CampoCotizacion.MONTO)
+        observar(binding.plazo, CampoCotizacion.PLAZO)
+        observar(binding.ciudad, CampoCotizacion.CIUDAD)
+        observar(binding.entidad, CampoCotizacion.ENTIDAD)
         binding.cotizar.setOnClickListener { cotizar() }
         binding.nuevaCotizacion.setOnClickListener { mostrarFormulario() }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putStringArrayList(ESTADO_TOCADOS, ArrayList(tocados.map { it.name }))
     }
 
     override fun onDestroy() {
@@ -54,13 +70,38 @@ class CotizacionActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun solicitud(): SolicitudCotizacion? {
-        val monto = binding.monto.text?.toString()?.trim()?.toLongOrNull() ?: return null
-        val plazo = binding.plazo.text?.toString()?.trim()?.toIntOrNull() ?: return null
-        val ciudad = binding.ciudad.text?.toString()?.trim().orEmpty()
-        val entidad = binding.entidad.text?.toString()?.trim().orEmpty()
-        if (ciudad.isEmpty() || entidad.isEmpty()) return null
-        return SolicitudCotizacion(monto, plazo, ciudad, entidad, clienteId)
+    private fun datos() = DatosCotizacion(
+        monto = binding.monto.text?.toString().orEmpty(),
+        plazo = binding.plazo.text?.toString().orEmpty(),
+        ciudad = binding.ciudad.text?.toString().orEmpty(),
+        entidad = binding.entidad.text?.toString().orEmpty(),
+    )
+
+    private fun observar(texto: EditText, campo: CampoCotizacion) {
+        texto.doAfterTextChanged {
+            tocados += campo
+            actualizar()
+        }
+        texto.setOnFocusChangeListener { _, conFoco ->
+            if (!conFoco) {
+                tocados += campo
+                actualizar()
+            }
+        }
+    }
+
+    /**
+     * Criterio 4: marca cada campo inválido (solo los que el cliente ya tocó) y habilita «Cotizar»
+     * únicamente cuando los cuatro campos cumplen los rangos del contrato.
+     */
+    private fun actualizar() {
+        val errores = ValidadorCotizacion.validar(datos())
+        CampoCotizacion.entries.forEach { campo ->
+            val error = errores[campo]?.takeIf { campo in tocados }
+            contenedorDe(campo).error = error?.let { getString(mensajeDe(it)) }
+        }
+        binding.cotizar.isEnabled = errores.isEmpty() && !cotizando
+        binding.mensajeError.visibility = View.GONE
     }
 
     /**
@@ -70,7 +111,7 @@ class CotizacionActivity : AppCompatActivity() {
      */
     private fun cotizar() {
         if (cotizando) return
-        val solicitud = solicitud() ?: return
+        val solicitud = ValidadorCotizacion.solicitud(datos(), clienteId) ?: return
         binding.mensajeError.visibility = View.GONE
         mostrarCotizando(true)
         hilo.execute {
@@ -82,7 +123,7 @@ class CotizacionActivity : AppCompatActivity() {
     private fun mostrarCotizando(activo: Boolean) {
         cotizando = activo
         binding.progreso.visibility = if (activo) View.VISIBLE else View.GONE
-        binding.cotizar.isEnabled = !activo
+        binding.cotizar.isEnabled = !activo && ValidadorCotizacion.validar(datos()).isEmpty()
         listOf(binding.campoMonto, binding.campoPlazo, binding.campoCiudad, binding.campoEntidad)
             .forEach { it.isEnabled = !activo }
     }
@@ -118,6 +159,22 @@ class CotizacionActivity : AppCompatActivity() {
         binding.resultado.visibility = View.VISIBLE
     }
 
+    private fun contenedorDe(campo: CampoCotizacion): TextInputLayout = when (campo) {
+        CampoCotizacion.MONTO -> binding.campoMonto
+        CampoCotizacion.PLAZO -> binding.campoPlazo
+        CampoCotizacion.CIUDAD -> binding.campoCiudad
+        CampoCotizacion.ENTIDAD -> binding.campoEntidad
+    }
+
+    @StringRes
+    private fun mensajeDe(error: ErrorCotizacion): Int = when (error) {
+        ErrorCotizacion.OBLIGATORIO -> R.string.cotizacion_error_obligatorio
+        ErrorCotizacion.MONTO_FUERA_DE_RANGO -> R.string.cotizacion_error_monto
+        ErrorCotizacion.PLAZO_FUERA_DE_RANGO -> R.string.cotizacion_error_plazo
+        ErrorCotizacion.CIUDAD_INVALIDA -> R.string.cotizacion_error_ciudad
+        ErrorCotizacion.ENTIDAD_INVALIDA -> R.string.cotizacion_error_entidad
+    }
+
     @StringRes
     private fun avisoSinPerfil(motivo: String?): Int = when (motivo) {
         MOTIVO_SIN_CLIENTE -> R.string.cotizacion_sin_perfil_sin_cliente
@@ -132,6 +189,7 @@ class CotizacionActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_CLIENTE_ID = "co.solventa.app.extra.CLIENTE_ID"
+        private const val ESTADO_TOCADOS = "tocados"
         private const val MOTIVO_SIN_CLIENTE = "SIN_CLIENTE"
         private const val MOTIVO_SIN_CONSENTIMIENTO = "SIN_CONSENTIMIENTO"
 
