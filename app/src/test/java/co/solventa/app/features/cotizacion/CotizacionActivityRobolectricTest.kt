@@ -160,13 +160,64 @@ class CotizacionActivityRobolectricTest {
     }
 
     @Test
-    fun `si no hay cotización lo informa`() {
+    fun `si el servicio no está disponible lo informa y deja reintentar`() {
         abrir(bffFalso(503, """{"codigo":"NUCLEO_NO_DISPONIBLE","detalle":"x"}""")) { actividad ->
             actividad.llenarValidos()
             actividad.cotizarYEsperar()
 
-            assertEquals(actividad.getString(R.string.cotizacion_error_general), actividad.texto(R.id.mensajeError))
+            assertEquals(actividad.getString(R.string.cotizacion_error_no_disponible), actividad.texto(R.id.mensajeError))
             assertFalse(actividad.visible(R.id.resultado))
+            assertFalse(actividad.visible(R.id.progreso))
+            assertTrue(actividad.findViewById<View>(R.id.cotizar).isEnabled)
+            assertTrue(actividad.findViewById<View>(R.id.campoMonto).isEnabled)
+        }
+    }
+
+    @Test
+    fun `sin conexión lo informa y al reintentar con el servicio arriba cotiza`() {
+        val url = bffFalso(201, cotizada)
+        servidor?.stop(0)
+        abrir(url) { actividad ->
+            actividad.llenarValidos()
+            actividad.cotizarYEsperar()
+
+            assertEquals(actividad.getString(R.string.cotizacion_error_sin_conexion), actividad.texto(R.id.mensajeError))
+            assertTrue(actividad.findViewById<View>(R.id.cotizar).isEnabled)
+
+            // El servicio vuelve: reintentar con el mismo formulario.
+            actividad.cliente = ClienteCotizacion(bffFalso(201, cotizada), timeoutMs = 1_000)
+            actividad.findViewById<View>(R.id.cotizar).performClick()
+            val limite = System.currentTimeMillis() + 5_000
+            while (!actividad.visible(R.id.resultado) && System.currentTimeMillis() < limite) {
+                Thread.sleep(20)
+                shadowOf(Looper.getMainLooper()).idle()
+            }
+            assertTrue(actividad.visible(R.id.resultado))
+        }
+    }
+
+    @Test
+    fun `si el núcleo rechaza datos marca los campos señalados`() {
+        val rechazo = """{"codigo":"DATOS_BIEN_INVALIDOS","detalle":"x","campos":["montoCredito","plazoAnios"]}"""
+        abrir(bffFalso(422, rechazo)) { actividad ->
+            actividad.llenarValidos()
+            actividad.cotizarYEsperar()
+
+            val revisar = actividad.getString(R.string.cotizacion_error_revisar_dato)
+            assertEquals(revisar, actividad.error(R.id.campoMonto))
+            assertEquals(revisar, actividad.error(R.id.campoPlazo))
+            assertNull(actividad.error(R.id.campoCiudad))
+            assertEquals(actividad.getString(R.string.cotizacion_error_formato), actividad.texto(R.id.mensajeError))
+        }
+    }
+
+    @Test
+    fun `si el núcleo rechaza sin señalar campos da un mensaje general`() {
+        abrir(bffFalso(422, """{"codigo":"RAMO_NO_SOPORTADO","detalle":"x"}""")) { actividad ->
+            actividad.llenarValidos()
+            actividad.cotizarYEsperar()
+
+            assertEquals(actividad.getString(R.string.cotizacion_error_no_cotizable), actividad.texto(R.id.mensajeError))
         }
     }
 

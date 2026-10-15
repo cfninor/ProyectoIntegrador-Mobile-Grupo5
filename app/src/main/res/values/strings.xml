@@ -60,7 +60,11 @@
     <string name="cotizacion_error_plazo">Debe estar entre 5 y 30 años</string>
     <string name="cotizacion_error_ciudad">Escribe entre 2 y 80 caracteres</string>
     <string name="cotizacion_error_entidad">Escribe entre 2 y 120 caracteres</string>
-    <string name="cotizacion_error_general">No pudimos cotizar. Intenta de nuevo.</string>
+    <string name="cotizacion_error_revisar_dato">Revisa este dato</string>
+    <string name="cotizacion_error_formato">Revisa los datos marcados.</string>
+    <string name="cotizacion_error_no_cotizable">No pudimos cotizar con estos datos. Revísalos e intenta de nuevo.</string>
+    <string name="cotizacion_error_no_disponible">El servicio de cotización no está disponible. Intenta de nuevo en unos minutos.</string>
+    <string name="cotizacion_error_sin_conexion">No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.</string>
     <string name="cotizacion_cotizando">Calculando tu prima…</string>
 
     <string name="cotizacion_resultado_titulo">Tu prima mensual</string>

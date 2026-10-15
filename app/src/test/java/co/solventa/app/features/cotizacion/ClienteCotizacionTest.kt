@@ -105,6 +105,41 @@ class ClienteCotizacionTest {
     }
 
     @Test
+    fun `un 422 del núcleo señala los campos del bien que rechazó`() {
+        val url = bffFalso(
+            422,
+            """{"codigo":"DATOS_BIEN_INVALIDOS","detalle":"x","campos":["montoCredito","plazoAnios","otro"]}""",
+            mutableMapOf(),
+        )
+
+        assertEquals(
+            ResultadoCotizacion.Invalida(setOf(CampoCotizacion.MONTO, CampoCotizacion.PLAZO)),
+            ClienteCotizacion(url).cotizar(solicitud),
+        )
+    }
+
+    @Test
+    fun `un 422 del BFF por cuerpo mal formado señala el campo de su loc`() {
+        val url = bffFalso(
+            422,
+            """{"detail":[{"loc":["body","datosBien","ciudadInmueble"],"msg":"x","type":"y"}]}""",
+            mutableMapOf(),
+        )
+
+        assertEquals(
+            ResultadoCotizacion.Invalida(setOf(CampoCotizacion.CIUDAD)),
+            ClienteCotizacion(url).cotizar(solicitud),
+        )
+    }
+
+    @Test
+    fun `un ramo no soportado es una solicitud inválida sin campos`() {
+        val url = bffFalso(422, """{"codigo":"RAMO_NO_SOPORTADO","detalle":"x"}""", mutableMapOf())
+
+        assertEquals(ResultadoCotizacion.Invalida(emptySet()), ClienteCotizacion(url).cotizar(solicitud))
+    }
+
+    @Test
     fun `una respuesta distinta de 201 no es una cotización`() {
         val url = bffFalso(503, """{"codigo":"NUCLEO_NO_DISPONIBLE","detalle":"x"}""", mutableMapOf())
 
@@ -119,10 +154,10 @@ class ClienteCotizacionTest {
     }
 
     @Test
-    fun `sin servidor no hay cotización`() {
+    fun `sin servidor es sin conexión`() {
         val url = bffFalso(201, "{}", mutableMapOf())
         servidor?.stop(0)
 
-        assertEquals(ResultadoCotizacion.NoDisponible, ClienteCotizacion(url, timeoutMs = 1_000).cotizar(solicitud))
+        assertEquals(ResultadoCotizacion.SinConexion, ClienteCotizacion(url, timeoutMs = 1_000).cotizar(solicitud))
     }
 }

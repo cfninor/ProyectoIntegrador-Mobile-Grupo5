@@ -128,15 +128,30 @@ class CotizacionActivity : AppCompatActivity() {
             .forEach { it.isEnabled = !activo }
     }
 
+    /**
+     * Criterio 5: si el servicio no responde, la pantalla lo dice con claridad y deja el formulario
+     * listo para reintentar; nunca se queda esperando ni se cierra.
+     */
     private fun mostrar(resultado: ResultadoCotizacion) {
         mostrarCotizando(false)
         when (resultado) {
             is ResultadoCotizacion.Cotizada -> mostrarCotizacion(resultado.cotizacion)
-            ResultadoCotizacion.NoDisponible -> {
-                binding.mensajeError.setText(R.string.cotizacion_error_general)
-                binding.mensajeError.visibility = View.VISIBLE
+            is ResultadoCotizacion.Invalida -> {
+                resultado.campos.forEach { campo ->
+                    contenedorDe(campo).error = getString(R.string.cotizacion_error_revisar_dato)
+                }
+                mostrarError(
+                    if (resultado.campos.isEmpty()) R.string.cotizacion_error_no_cotizable else R.string.cotizacion_error_formato,
+                )
             }
+            ResultadoCotizacion.NoDisponible -> mostrarError(R.string.cotizacion_error_no_disponible)
+            ResultadoCotizacion.SinConexion -> mostrarError(R.string.cotizacion_error_sin_conexion)
         }
+    }
+
+    private fun mostrarError(@StringRes mensaje: Int) {
+        binding.mensajeError.setText(mensaje)
+        binding.mensajeError.visibility = View.VISIBLE
     }
 
     /** Criterio 2: la prima estimada en pantalla, con su vigencia y el número de cotización. */
