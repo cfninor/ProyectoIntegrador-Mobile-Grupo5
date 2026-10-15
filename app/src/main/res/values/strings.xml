@@ -56,9 +56,14 @@
     <string name="cotizacion_entidad">Entidad que otorga el crédito</string>
     <string name="cotizacion_cotizar">Cotizar</string>
     <string name="cotizacion_error_general">No pudimos cotizar. Intenta de nuevo.</string>
+    <string name="cotizacion_cotizando">Calculando tu prima…</string>
 
     <string name="cotizacion_resultado_titulo">Tu prima mensual</string>
     <string name="cotizacion_resultado_vigencia">Oferta válida hasta el %1$s</string>
     <string name="cotizacion_resultado_numero">Cotización N.º %1$s</string>
     <string name="cotizacion_nueva">Nueva cotización</string>
+    <!-- La prima se calculó con el perfil de riesgo por defecto (calculadaSinPerfil). -->
+    <string name="cotizacion_sin_perfil_sin_cliente">Calculamos tu prima con un perfil de riesgo estándar. Si completas tu onboarding, podemos personalizarla.</string>
+    <string name="cotizacion_sin_perfil_sin_consentimiento">Calculamos tu prima con un perfil de riesgo estándar porque no tenemos tu autorización para consultar tus datos.</string>
+    <string name="cotizacion_sin_perfil_no_disponible">Tu perfil de riesgo no estuvo disponible a tiempo, así que calculamos tu prima con un perfil estándar.</string>
 </resources>

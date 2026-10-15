@@ -19,6 +19,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import java.net.InetSocketAddress
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 
 /** La pantalla de cotización en la JVM con Robolectric, contra un BFF de prueba en localhost. */
 @RunWith(AndroidJUnit4::class)
@@ -39,10 +41,16 @@ class CotizacionActivityRobolectricTest {
         servidor?.stop(0)
     }
 
-    private fun bffFalso(codigo: Int, respuesta: String): String {
+    private val peticiones = AtomicInteger()
+
+    /** BFF de prueba; [demoraMs] simula al núcleo esperando el perfil de riesgo. */
+    private fun bffFalso(codigo: Int, respuesta: String, demoraMs: Long = 0): String {
         val http = HttpServer.create(InetSocketAddress("localhost", 0), 0)
+        http.executor = Executors.newCachedThreadPool()
         http.createContext("/") { intercambio ->
+            peticiones.incrementAndGet()
             recibido["cuerpo"] = intercambio.requestBody.bufferedReader().readText()
+            Thread.sleep(demoraMs)
             val bytes = respuesta.toByteArray()
             intercambio.sendResponseHeaders(codigo, bytes.size.toLong().coerceAtLeast(1))
             intercambio.responseBody.use { it.write(bytes) }
@@ -98,6 +106,8 @@ class CotizacionActivityRobolectricTest {
             assertTrue(actividad.texto(R.id.prima), actividad.texto(R.id.prima).contains("70.000"))
             assertEquals("Oferta válida hasta el 22 de octubre de 2026", actividad.texto(R.id.vigencia))
             assertEquals("Cotización N.º 8F1E2D3C", actividad.texto(R.id.numeroCotizacion))
+            // Calculada con el perfil del cliente: sin aviso.
+            assertFalse(actividad.visible(R.id.avisoSinPerfil))
         }
     }
 
@@ -166,4 +176,59 @@ class CotizacionActivityRobolectricTest {
             assertTrue(actividad.visible(R.id.formulario))
         }
     }
+
+    @Test
+    fun `mientras el núcleo calcula la pantalla no se bloquea y no repite la solicitud`() {
+        abrir(bffFalso(201, cotizada, demoraMs = 800)) { actividad ->
+            actividad.llenarValidos()
+            val boton = actividad.findViewById<View>(R.id.cotizar)
+
+            val inicio = System.nanoTime()
+            boton.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            val ms = (System.nanoTime() - inicio) / 1_000_000
+
+            assertTrue("el toque tardó $ms ms en el hilo principal", ms < 300)
+            assertTrue(actividad.visible(R.id.progreso))
+            assertFalse(boton.isEnabled)
+            assertFalse(actividad.findViewById<View>(R.id.campoMonto).isEnabled)
+
+            boton.performClick()
+            actividad.cotizarYEsperar()
+
+            assertEquals(1, peticiones.get())
+            assertTrue(actividad.visible(R.id.resultado))
+            assertFalse(actividad.visible(R.id.progreso))
+            assertTrue(boton.isEnabled)
+        }
+    }
+
+    private fun sinPerfil(motivo: String) = cotizada.replace(
+        "\"calculadaSinPerfil\":false",
+        "\"calculadaSinPerfil\":true,\"motivoSinPerfil\":\"$motivo\"",
+    )
+
+    private fun avisoPara(motivo: String, mensaje: Int) {
+        abrir(bffFalso(201, sinPerfil(motivo))) { actividad ->
+            actividad.llenarValidos()
+            actividad.cotizarYEsperar()
+
+            assertTrue(actividad.visible(R.id.resultado))
+            assertTrue(actividad.texto(R.id.prima).contains("70.000"))
+            assertTrue(actividad.visible(R.id.avisoSinPerfil))
+            assertEquals(actividad.getString(mensaje), actividad.texto(R.id.avisoSinPerfil))
+        }
+    }
+
+    @Test
+    fun `si el perfil no respondió a tiempo muestra la prima con su aviso`() =
+        avisoPara("PERFIL_NO_DISPONIBLE", R.string.cotizacion_sin_perfil_no_disponible)
+
+    @Test
+    fun `sin cliente muestra la prima con su aviso`() =
+        avisoPara("SIN_CLIENTE", R.string.cotizacion_sin_perfil_sin_cliente)
+
+    @Test
+    fun `sin autorización de datos muestra la prima con su aviso`() =
+        avisoPara("SIN_CONSENTIMIENTO", R.string.cotizacion_sin_perfil_sin_consentimiento)
 }

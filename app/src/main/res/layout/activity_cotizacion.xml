@@ -120,6 +120,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/cotizacion_cotizar" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progreso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:contentDescription="@string/cotizacion_cotizando"
+                android:indeterminate="true"
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout
@@ -159,6 +168,17 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:textAppearance="?attr/textAppearanceBodySmall" />
+
+            <TextView
+                android:id="@+id/avisoSinPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="?attr/colorSecondaryContainer"
+                android:padding="16dp"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSecondaryContainer"
+                android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/nuevaCotizacion"
