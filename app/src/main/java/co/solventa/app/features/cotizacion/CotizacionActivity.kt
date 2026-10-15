@@ -169,10 +169,11 @@ class CotizacionActivity : AppCompatActivity() {
 
     /** Criterio 2: la prima estimada en pantalla, con su vigencia y el número de cotización. */
     private fun mostrarCotizacion(cotizacion: Cotizacion) {
-        binding.prima.text = FormatoCotizacion.pesos(cotizacion.prima, cotizacion.moneda)
+        val locale = FormatoCotizacion.localeDe(resources.configuration.locales[0])
+        binding.prima.text = FormatoCotizacion.pesos(cotizacion.prima, cotizacion.moneda, locale)
         binding.vigencia.text = getString(
             R.string.cotizacion_resultado_vigencia,
-            FormatoCotizacion.fecha(cotizacion.vigenteHasta),
+            FormatoCotizacion.fecha(cotizacion.vigenteHasta, locale),
         )
         binding.numeroCotizacion.text = getString(
             R.string.cotizacion_resultado_numero,

@@ -20,6 +20,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -358,4 +359,19 @@ class CotizacionActivityRobolectricTest {
     @Test
     fun `sin autorización de datos muestra la prima con su aviso`() =
         avisoPara("SIN_CONSENTIMIENTO", R.string.cotizacion_sin_perfil_sin_consentimiento)
+
+    @Test
+    @Config(qualifiers = "en")
+    fun `en inglés muestra los textos, la prima y la vigencia en inglés`() {
+        abrir(bffFalso(201, cotizada)) { actividad ->
+            assertEquals("Get quote", actividad.texto(R.id.cotizar))
+
+            actividad.llenarValidos()
+            actividad.cotizarYEsperar()
+
+            assertTrue(actividad.texto(R.id.prima), actividad.texto(R.id.prima).contains("70,000"))
+            assertEquals("Offer valid until October 22, 2026", actividad.texto(R.id.vigencia))
+            assertEquals("Quote No. 8F1E2D3C", actividad.texto(R.id.numeroCotizacion))
+        }
+    }
 }

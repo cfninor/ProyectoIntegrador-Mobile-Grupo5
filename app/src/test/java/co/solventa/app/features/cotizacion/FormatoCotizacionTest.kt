@@ -3,6 +3,7 @@ package co.solventa.app.features.cotizacion
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.Locale
 
 class FormatoCotizacionTest {
 
@@ -30,5 +31,18 @@ class FormatoCotizacionTest {
     @Test
     fun `una fecha que no es ISO se muestra tal cual`() {
         assertEquals("pronto", FormatoCotizacion.fecha("pronto"))
+    }
+
+    @Test
+    fun `en inglés usa las convenciones del idioma`() {
+        val ingles = FormatoCotizacion.localeDe(Locale.ENGLISH)
+
+        assertTrue(FormatoCotizacion.pesos(70_000, locale = ingles), FormatoCotizacion.pesos(70_000, locale = ingles).contains("70,000"))
+        assertEquals("October 22, 2026", FormatoCotizacion.fecha("2026-10-22T15:00:00Z", ingles))
+    }
+
+    @Test
+    fun `cualquier español se formatea como en Colombia`() {
+        assertEquals(FormatoCotizacion.COLOMBIA, FormatoCotizacion.localeDe(Locale.forLanguageTag("es-ES")))
     }
 }

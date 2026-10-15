@@ -2,8 +2,8 @@
 <!-- Textos por defecto (español). Cada idioma adicional va en values-<idioma>/strings.xml;
      ningún texto visible se escribe directamente en el código o en los layouts. -->
 <resources>
-    <string name="app_name">Solventa</string>
-    <string name="marca">Solventa</string>
+    <string name="app_name" translatable="false">Solventa</string>
+    <string name="marca" translatable="false">Solventa</string>
     <string name="inicio_subtitulo">Autoservicio para clientes asegurados</string>
     <string name="inicio_iniciar_onboarding">Iniciar onboarding</string>
     <string name="inicio_cotizar">Cotizar un seguro</string>
