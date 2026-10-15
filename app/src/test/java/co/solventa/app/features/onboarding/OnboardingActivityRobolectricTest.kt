@@ -5,6 +5,7 @@ import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import co.solventa.app.R
+import co.solventa.app.features.cotizacion.CotizacionActivity
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.sun.net.httpserver.HttpServer
 import org.junit.After
@@ -148,6 +149,15 @@ class OnboardingActivityRobolectricTest {
 
             assertEquals(View.GONE, actividad.findViewById<View>(R.id.formulario).visibility)
             assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.exito).visibility)
+
+            // Desde el éxito puede cotizar con su clienteId.
+            actividad.findViewById<View>(R.id.cotizarSeguro).performClick()
+            val siguiente = shadowOf(actividad).nextStartedActivity
+            assertEquals(CotizacionActivity::class.java.name, siguiente.component?.className)
+            assertEquals(
+                "9b1d4e2a-7c3f-4a8b-8e6d-2f1a3b5c7d9e",
+                siguiente.getStringExtra(CotizacionActivity.EXTRA_CLIENTE_ID),
+            )
         }
     }
 

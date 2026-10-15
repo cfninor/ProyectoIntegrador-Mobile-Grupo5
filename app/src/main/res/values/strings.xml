@@ -6,6 +6,7 @@
     <string name="marca">Solventa</string>
     <string name="inicio_subtitulo">Autoservicio para clientes asegurados</string>
     <string name="inicio_iniciar_onboarding">Iniciar onboarding</string>
+    <string name="inicio_cotizar">Cotizar un seguro</string>
 
     <!-- Onboarding digital (SOLVENTAG5-89) -->
     <string name="onboarding_titulo">Inicia tu onboarding</string>
@@ -41,4 +42,23 @@
     <string name="onboarding_exito_titulo">¡Listo! Iniciaste tu onboarding</string>
     <string name="onboarding_exito_mensaje">Guardamos tus datos de forma segura. El siguiente paso es verificar tu identidad.</string>
     <string name="onboarding_exito_estado">Estado: onboarding en curso</string>
+    <string name="onboarding_exito_cotizar">Cotizar mi seguro</string>
+
+    <!-- Cotizar desde el móvil (SOLVENTAG5-95) -->
+    <string name="cotizacion_titulo">Cotiza tu seguro de vida hipotecario</string>
+    <string name="cotizacion_subtitulo">Cuéntanos sobre tu crédito y te mostramos la prima mensual.</string>
+    <string name="cotizacion_seccion_credito">Tu crédito</string>
+    <string name="cotizacion_seccion_inmueble">El inmueble</string>
+    <string name="cotizacion_monto">Monto del crédito</string>
+    <string name="cotizacion_monto_ayuda">En pesos, sin puntos</string>
+    <string name="cotizacion_plazo">Plazo del crédito (años)</string>
+    <string name="cotizacion_ciudad">Ciudad del inmueble</string>
+    <string name="cotizacion_entidad">Entidad que otorga el crédito</string>
+    <string name="cotizacion_cotizar">Cotizar</string>
+    <string name="cotizacion_error_general">No pudimos cotizar. Intenta de nuevo.</string>
+
+    <string name="cotizacion_resultado_titulo">Tu prima mensual</string>
+    <string name="cotizacion_resultado_vigencia">Oferta válida hasta el %1$s</string>
+    <string name="cotizacion_resultado_numero">Cotización N.º %1$s</string>
+    <string name="cotizacion_nueva">Nueva cotización</string>
 </resources>

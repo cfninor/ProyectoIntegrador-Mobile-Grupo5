@@ -16,6 +16,7 @@ import androidx.core.widget.doAfterTextChanged
 import co.solventa.app.R
 import co.solventa.app.core.config.AppConfig
 import co.solventa.app.databinding.ActivityOnboardingBinding
+import co.solventa.app.features.cotizacion.CotizacionActivity
 import com.google.android.material.textfield.TextInputLayout
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -144,6 +145,10 @@ class OnboardingActivity : AppCompatActivity() {
             is ResultadoOnboarding.Iniciado -> {
                 binding.formulario.visibility = View.GONE
                 binding.exito.visibility = View.VISIBLE
+                // Con el clienteId, el núcleo cotiza con el perfil de riesgo del cliente.
+                binding.cotizarSeguro.setOnClickListener {
+                    startActivity(CotizacionActivity.intent(this, resultado.clienteId))
+                }
             }
             is ResultadoOnboarding.Invalido -> {
                 resultado.campos.forEach { campo ->
