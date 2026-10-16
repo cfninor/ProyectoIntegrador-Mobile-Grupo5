@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English texts. Every key in values/strings.xml must also be here (StringsTraducidosTest). -->
+<resources>
+    <string name="inicio_subtitulo">Self-service for insured customers</string>
+    <string name="inicio_iniciar_onboarding">Start onboarding</string>
+    <string name="inicio_cotizar">Get an insurance quote</string>
+    <string name="error_red_local">To connect to the development server, the app needs the local network permission.</string>
+
+    <!-- Digital onboarding (SOLVENTAG5-89) -->
+    <string name="onboarding_titulo">Start your onboarding</string>
+    <string name="onboarding_subtitulo">Enter your basic details to sign up without going to an office.</string>
+    <string name="onboarding_seccion_documento">ID document</string>
+    <string name="onboarding_seccion_nombre">Name</string>
+    <string name="onboarding_seccion_contacto">Contact</string>
+    <string name="onboarding_tipo_documento">Document type</string>
+    <string name="onboarding_numero_documento">Document number</string>
+    <string name="onboarding_nombres">First names</string>
+    <string name="onboarding_apellidos">Last names</string>
+    <string name="onboarding_correo">Email</string>
+    <string name="onboarding_celular">Mobile phone</string>
+    <string name="onboarding_continuar">Continue</string>
+    <string name="onboarding_enviando">Sending your details…</string>
+
+    <string name="onboarding_tipo_cc">Citizenship ID (CC)</string>
+    <string name="onboarding_tipo_ce">Foreigner ID (CE)</string>
+    <string name="onboarding_tipo_pa">Passport</string>
+    <string name="onboarding_tipo_ppt">Temporary Protection Permit (PPT)</string>
+
+    <string name="onboarding_error_obligatorio">This field is required</string>
+    <string name="onboarding_error_documento">Must have between 6 and 10 digits</string>
+    <string name="onboarding_error_pasaporte">Must have between 6 and 12 letters or numbers</string>
+    <string name="onboarding_error_nombre">Use letters only, between 2 and 60 characters</string>
+    <string name="onboarding_error_correo">Enter a valid email, for example name@email.com</string>
+    <string name="onboarding_error_celular">Must be a 10-digit mobile number starting with 3</string>
+    <string name="onboarding_error_formato">Check the highlighted fields.</string>
+    <string name="onboarding_error_no_disponible">The service is not available. Please try again in a few minutes.</string>
+    <string name="onboarding_error_sin_conexion">We could not connect. Check your connection and try again.</string>
+
+    <string name="onboarding_exito_titulo">Done! Your onboarding has started</string>
+    <string name="onboarding_exito_mensaje">We stored your details securely. The next step is to verify your identity.</string>
+    <string name="onboarding_exito_estado">Status: onboarding in progress</string>
+    <string name="onboarding_exito_cotizar">Get my insurance quote</string>
+
+    <!-- Quote from the mobile app (SOLVENTAG5-95) -->
+    <string name="cotizacion_titulo">Get a quote for your mortgage life insurance</string>
+    <string name="cotizacion_subtitulo">Tell us about your loan and we will show you the monthly premium.</string>
+    <string name="cotizacion_seccion_credito">Your loan</string>
+    <string name="cotizacion_seccion_inmueble">The property</string>
+    <string name="cotizacion_monto">Loan amount</string>
+    <string name="cotizacion_monto_ayuda">In Colombian pesos, without separators</string>
+    <string name="cotizacion_plazo">Loan term (years)</string>
+    <string name="cotizacion_ciudad">Property city</string>
+    <string name="cotizacion_entidad">Lender</string>
+    <string name="cotizacion_cotizar">Get quote</string>
+    <string name="cotizacion_error_obligatorio">This field is required</string>
+    <string name="cotizacion_error_monto">Must be between COP 10,000,000 and COP 1,200,000,000</string>
+    <string name="cotizacion_error_plazo">Must be between 5 and 30 years</string>
+    <string name="cotizacion_error_ciudad">Enter between 2 and 80 characters</string>
+    <string name="cotizacion_error_entidad">Enter between 2 and 120 characters</string>
+    <string name="cotizacion_error_revisar_dato">Check this value</string>
+    <string name="cotizacion_error_formato">Check the highlighted values.</string>
+    <string name="cotizacion_error_no_cotizable">We could not quote with these details. Review them and try again.</string>
+    <string name="cotizacion_error_no_disponible">The quote service is not available. Please try again in a few minutes.</string>
+    <string name="cotizacion_error_sin_conexion">We could not connect. Check your connection and try again.</string>
+    <string name="cotizacion_cotizando">Calculating your premium…</string>
+
+    <string name="cotizacion_resultado_titulo">Your monthly premium</string>
+    <string name="cotizacion_resultado_vigencia">Offer valid until %1$s</string>
+    <string name="cotizacion_resultado_numero">Quote No. %1$s</string>
+    <string name="cotizacion_nueva">New quote</string>
+    <!-- The premium was calculated with the default risk profile (calculadaSinPerfil). -->
+    <string name="cotizacion_sin_perfil_sin_cliente">We calculated your premium with a standard risk profile. If you complete your onboarding, we can personalize it.</string>
+    <string name="cotizacion_sin_perfil_sin_consentimiento">We calculated your premium with a standard risk profile because we do not have your permission to check your data.</string>
+    <string name="cotizacion_sin_perfil_no_disponible">Your risk profile was not available in time, so we calculated your premium with a standard profile.</string>
+</resources>

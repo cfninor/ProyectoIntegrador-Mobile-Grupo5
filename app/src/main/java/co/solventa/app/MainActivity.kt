@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import co.solventa.app.databinding.ActivityMainBinding
+import co.solventa.app.features.cotizacion.CotizacionActivity
 import co.solventa.app.features.onboarding.OnboardingActivity
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +28,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.iniciarOnboarding.setOnClickListener {
             startActivity(Intent(this, OnboardingActivity::class.java))
+        }
+        binding.cotizar.setOnClickListener {
+            startActivity(CotizacionActivity.intent(this))
         }
     }
 }

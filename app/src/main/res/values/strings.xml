@@ -2,10 +2,12 @@
 <!-- Textos por defecto (español). Cada idioma adicional va en values-<idioma>/strings.xml;
      ningún texto visible se escribe directamente en el código o en los layouts. -->
 <resources>
-    <string name="app_name">Solventa</string>
-    <string name="marca">Solventa</string>
+    <string name="app_name" translatable="false">Solventa</string>
+    <string name="marca" translatable="false">Solventa</string>
     <string name="inicio_subtitulo">Autoservicio para clientes asegurados</string>
     <string name="inicio_iniciar_onboarding">Iniciar onboarding</string>
+    <string name="inicio_cotizar">Cotizar un seguro</string>
+    <string name="error_red_local">Para conectarse al servidor de desarrollo, la app necesita el permiso de red local.</string>
 
     <!-- Onboarding digital (SOLVENTAG5-89) -->
     <string name="onboarding_titulo">Inicia tu onboarding</string>
@@ -35,10 +37,42 @@
     <string name="onboarding_error_celular">Debe ser un celular de 10 dígitos que empiece por 3</string>
     <string name="onboarding_error_formato">Revisa los campos marcados.</string>
     <string name="onboarding_error_no_disponible">El servicio no está disponible. Intenta de nuevo en unos minutos.</string>
-    <string name="onboarding_error_red_local">Para conectarse al servidor de desarrollo, la app necesita el permiso de red local.</string>
     <string name="onboarding_error_sin_conexion">No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.</string>
 
     <string name="onboarding_exito_titulo">¡Listo! Iniciaste tu onboarding</string>
     <string name="onboarding_exito_mensaje">Guardamos tus datos de forma segura. El siguiente paso es verificar tu identidad.</string>
     <string name="onboarding_exito_estado">Estado: onboarding en curso</string>
+    <string name="onboarding_exito_cotizar">Cotizar mi seguro</string>
+
+    <!-- Cotizar desde el móvil (SOLVENTAG5-95) -->
+    <string name="cotizacion_titulo">Cotiza tu seguro de vida hipotecario</string>
+    <string name="cotizacion_subtitulo">Cuéntanos sobre tu crédito y te mostramos la prima mensual.</string>
+    <string name="cotizacion_seccion_credito">Tu crédito</string>
+    <string name="cotizacion_seccion_inmueble">El inmueble</string>
+    <string name="cotizacion_monto">Monto del crédito</string>
+    <string name="cotizacion_monto_ayuda">En pesos, sin puntos</string>
+    <string name="cotizacion_plazo">Plazo del crédito (años)</string>
+    <string name="cotizacion_ciudad">Ciudad del inmueble</string>
+    <string name="cotizacion_entidad">Entidad que otorga el crédito</string>
+    <string name="cotizacion_cotizar">Cotizar</string>
+    <string name="cotizacion_error_obligatorio">Este campo es obligatorio</string>
+    <string name="cotizacion_error_monto">Debe estar entre $ 10.000.000 y $ 1.200.000.000</string>
+    <string name="cotizacion_error_plazo">Debe estar entre 5 y 30 años</string>
+    <string name="cotizacion_error_ciudad">Escribe entre 2 y 80 caracteres</string>
+    <string name="cotizacion_error_entidad">Escribe entre 2 y 120 caracteres</string>
+    <string name="cotizacion_error_revisar_dato">Revisa este dato</string>
+    <string name="cotizacion_error_formato">Revisa los datos marcados.</string>
+    <string name="cotizacion_error_no_cotizable">No pudimos cotizar con estos datos. Revísalos e intenta de nuevo.</string>
+    <string name="cotizacion_error_no_disponible">El servicio de cotización no está disponible. Intenta de nuevo en unos minutos.</string>
+    <string name="cotizacion_error_sin_conexion">No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.</string>
+    <string name="cotizacion_cotizando">Calculando tu prima…</string>
+
+    <string name="cotizacion_resultado_titulo">Tu prima mensual</string>
+    <string name="cotizacion_resultado_vigencia">Oferta válida hasta el %1$s</string>
+    <string name="cotizacion_resultado_numero">Cotización N.º %1$s</string>
+    <string name="cotizacion_nueva">Nueva cotización</string>
+    <!-- La prima se calculó con el perfil de riesgo por defecto (calculadaSinPerfil). -->
+    <string name="cotizacion_sin_perfil_sin_cliente">Calculamos tu prima con un perfil de riesgo estándar. Si completas tu onboarding, podemos personalizarla.</string>
+    <string name="cotizacion_sin_perfil_sin_consentimiento">Calculamos tu prima con un perfil de riesgo estándar porque no tenemos tu autorización para consultar tus datos.</string>
+    <string name="cotizacion_sin_perfil_no_disponible">Tu perfil de riesgo no estuvo disponible a tiempo, así que calculamos tu prima con un perfil estándar.</string>
 </resources>

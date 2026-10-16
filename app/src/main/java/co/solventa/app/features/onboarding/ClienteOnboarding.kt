@@ -1,10 +1,10 @@
 package co.solventa.app.features.onboarding
 
+import co.solventa.app.core.red.ClienteHttp
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.URI
 
 /** Resultado de pedir al BFF móvil que inicie el onboarding. */
 sealed interface ResultadoOnboarding {
@@ -26,42 +26,20 @@ sealed interface ResultadoOnboarding {
  * se llama fuera del hilo principal.
  */
 class ClienteOnboarding(
-    private val apiBaseUrl: String,
-    private val timeoutMs: Int = TIMEOUT_MS,
+    apiBaseUrl: String,
+    timeoutMs: Int = ClienteHttp.TIMEOUT_MS,
 ) {
+    private val http = ClienteHttp(apiBaseUrl, timeoutMs)
 
-    fun iniciar(datos: DatosBasicos): ResultadoOnboarding {
-        val conexion = try {
-            URI("$apiBaseUrl$RUTA").toURL().openConnection() as HttpURLConnection
-        } catch (_: IOException) {
-            return ResultadoOnboarding.SinConexion
-        }
-        return try {
-            conexion.requestMethod = "POST"
-            conexion.connectTimeout = timeoutMs
-            conexion.readTimeout = timeoutMs
-            conexion.doOutput = true
-            conexion.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-            conexion.setRequestProperty("Accept", "application/json")
-            conexion.outputStream.use { it.write(cuerpo(datos).toString().toByteArray()) }
-
-            val codigo = conexion.responseCode
-            val flujo = if (codigo < HttpURLConnection.HTTP_BAD_REQUEST) {
-                conexion.inputStream
-            } else {
-                conexion.errorStream
-            }
-            interpretar(codigo, flujo?.bufferedReader()?.use { it.readText() }.orEmpty())
-        } catch (_: IOException) {
-            ResultadoOnboarding.SinConexion
-        } finally {
-            conexion.disconnect()
-        }
+    fun iniciar(datos: DatosBasicos): ResultadoOnboarding = try {
+        val respuesta = http.postJson(RUTA, cuerpo(datos))
+        interpretar(respuesta.codigo, respuesta.cuerpo)
+    } catch (_: IOException) {
+        ResultadoOnboarding.SinConexion
     }
 
     companion object {
         private const val RUTA = "/v1/onboarding"
-        private const val TIMEOUT_MS = 10_000
         private const val HTTP_UNPROCESSABLE = 422
 
         /** Ruta de cada campo en el cuerpo, como la reporta el BFF en `detail[].loc`. */
