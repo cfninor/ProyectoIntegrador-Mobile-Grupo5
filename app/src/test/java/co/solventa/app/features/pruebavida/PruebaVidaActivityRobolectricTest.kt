@@ -170,6 +170,41 @@ class PruebaVidaActivityRobolectricTest {
     }
 
     @Test
+    fun `un 409 al iniciar es sin intentos y no deja reintentar`() {
+        val url = bffFalso(respuestaIniciar = 409 to """{"codigo":"SIN_INTENTOS","detalle":"x"}""")
+        abrir(url) { actividad ->
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_error_sin_intentos),
+                actividad.textoDe(R.id.resultadoMensaje),
+            )
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_finalizar),
+                actividad.findViewById<Button>(R.id.resultadoAccion).text.toString(),
+            )
+        }
+    }
+
+    @Test
+    fun `sin servidor al iniciar muestra que no hubo conexión y deja reintentar`() {
+        val url = bffFalso()
+        servidor?.stop(0)
+        abrir(url) { actividad ->
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_error_sin_conexion),
+                actividad.textoDe(R.id.resultadoMensaje),
+            )
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_reintentar),
+                actividad.findViewById<Button>(R.id.resultadoAccion).text.toString(),
+            )
+        }
+    }
+
+    @Test
     fun `aprobada muestra el mensaje final sin intentos restantes`() {
         val url = bffFalso(respuestaCapturas = 200 to """{"resultado":"APROBADA","intento":1,"intentosRestantes":2}""")
         abrir(url) { actividad ->
