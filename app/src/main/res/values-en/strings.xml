@@ -39,7 +39,41 @@
     <string name="onboarding_exito_titulo">Done! Your onboarding has started</string>
     <string name="onboarding_exito_mensaje">We stored your details securely. The next step is to verify your identity.</string>
     <string name="onboarding_exito_estado">Status: onboarding in progress</string>
+    <string name="onboarding_exito_prueba_vida">Verify my identity</string>
     <string name="onboarding_exito_cotizar">Get my insurance quote</string>
+
+    <!-- Selfie liveness check (SOLVENTAG5-90) -->
+    <string name="prueba_vida_cargando">Preparing your liveness check…</string>
+    <string name="prueba_vida_enviando">Sending your captures…</string>
+    <string name="prueba_vida_intento">Attempt %1$d of 3 · %2$d left</string>
+    <string name="prueba_vida_capturar">Capture</string>
+    <string name="prueba_vida_gesto_parpadear">Blink</string>
+    <string name="prueba_vida_gesto_girar_izquierda">Turn your face to the left</string>
+    <string name="prueba_vida_gesto_girar_derecha">Turn your face to the right</string>
+    <string name="prueba_vida_gesto_sonreir">Smile</string>
+    <string name="prueba_vida_error_titulo">We could not continue</string>
+    <string name="prueba_vida_error_permiso_camara">To verify your identity, the app needs the camera permission.</string>
+    <string name="prueba_vida_error_camara">We could not open the camera. Try again.</string>
+    <string name="prueba_vida_error_captura">We could not take the photos. Try again.</string>
+    <string name="prueba_vida_error_envio">We could not send your captures. Try again.</string>
+    <string name="prueba_vida_error_sin_conexion">We could not connect. Check your connection and try again.</string>
+    <string name="prueba_vida_error_no_disponible">The service is not available. Please try again in a few minutes.</string>
+    <string name="prueba_vida_error_cliente_no_encontrado">We could not find your onboarding record. Start again from the beginning.</string>
+    <string name="prueba_vida_error_sin_intentos">You already used all your liveness check attempts. An advisor will review your case.</string>
+    <string name="prueba_vida_error_intento_vencido">The attempt expired or was already resolved. Try again.</string>
+    <string name="prueba_vida_aprobada_titulo">Identity verified!</string>
+    <string name="prueba_vida_aprobada_mensaje">Your liveness check was approved.</string>
+    <string name="prueba_vida_rechazada_titulo">We could not verify you</string>
+    <string name="prueba_vida_rechazada_mensaje_generico">We could not validate your identity with these photos.</string>
+    <string name="prueba_vida_motivo_rostro_no_coincide">Your face does not match your ID document.</string>
+    <string name="prueba_vida_motivo_suplantacion">We detected a spoofing attempt.</string>
+    <string name="prueba_vida_motivo_gesto_no_detectado">We did not detect the requested gesture.</string>
+    <string name="prueba_vida_motivo_calidad_insuficiente">The photo quality was not enough.</string>
+    <string name="prueba_vida_revision_manual_titulo">Your case was sent to manual review</string>
+    <string name="prueba_vida_revision_manual_mensaje">An advisor will review your identity and contact you.</string>
+    <string name="prueba_vida_intentos_restantes">%1$d attempts left</string>
+    <string name="prueba_vida_reintentar">Try again</string>
+    <string name="prueba_vida_finalizar">Finish</string>
 
     <!-- Quote from the mobile app (SOLVENTAG5-95) -->
     <string name="cotizacion_titulo">Get a quote for your mortgage life insurance</string>
