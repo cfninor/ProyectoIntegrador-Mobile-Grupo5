@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Guía para encuadrar el rostro en la prueba de vida (SOLVENTAG5-90): un óvalo sin relleno
+     sobre la vista previa de la cámara. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@android:color/transparent" />
+    <stroke
+        android:width="3dp"
+        android:color="@color/ic_launcher_background" />
+</shape>

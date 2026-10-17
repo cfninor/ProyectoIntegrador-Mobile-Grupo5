@@ -42,7 +42,41 @@
     <string name="onboarding_exito_titulo">¡Listo! Iniciaste tu onboarding</string>
     <string name="onboarding_exito_mensaje">Guardamos tus datos de forma segura. El siguiente paso es verificar tu identidad.</string>
     <string name="onboarding_exito_estado">Estado: onboarding en curso</string>
+    <string name="onboarding_exito_prueba_vida">Verificar mi identidad</string>
     <string name="onboarding_exito_cotizar">Cotizar mi seguro</string>
+
+    <!-- Prueba de vida por selfie (SOLVENTAG5-90) -->
+    <string name="prueba_vida_cargando">Preparando tu prueba de vida…</string>
+    <string name="prueba_vida_enviando">Enviando tus capturas…</string>
+    <string name="prueba_vida_intento">Intento %1$d de 3 · Te quedan %2$d</string>
+    <string name="prueba_vida_capturar">Capturar</string>
+    <string name="prueba_vida_gesto_parpadear">Parpadea</string>
+    <string name="prueba_vida_gesto_girar_izquierda">Gira tu rostro a la izquierda</string>
+    <string name="prueba_vida_gesto_girar_derecha">Gira tu rostro a la derecha</string>
+    <string name="prueba_vida_gesto_sonreir">Sonríe</string>
+    <string name="prueba_vida_error_titulo">No pudimos continuar</string>
+    <string name="prueba_vida_error_permiso_camara">Para verificar tu identidad, la app necesita el permiso de cámara.</string>
+    <string name="prueba_vida_error_camara">No pudimos abrir la cámara. Intenta de nuevo.</string>
+    <string name="prueba_vida_error_captura">No pudimos tomar las fotos. Intenta de nuevo.</string>
+    <string name="prueba_vida_error_envio">No pudimos enviar tus capturas. Intenta de nuevo.</string>
+    <string name="prueba_vida_error_sin_conexion">No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.</string>
+    <string name="prueba_vida_error_no_disponible">El servicio no está disponible. Intenta de nuevo en unos minutos.</string>
+    <string name="prueba_vida_error_cliente_no_encontrado">No encontramos tu registro de onboarding. Vuelve a intentarlo desde el inicio.</string>
+    <string name="prueba_vida_error_sin_intentos">Ya agotaste tus intentos de prueba de vida. Un asesor revisará tu caso.</string>
+    <string name="prueba_vida_error_intento_vencido">El intento venció o ya se resolvió. Vuelve a intentarlo.</string>
+    <string name="prueba_vida_aprobada_titulo">¡Identidad verificada!</string>
+    <string name="prueba_vida_aprobada_mensaje">Tu prueba de vida fue aprobada.</string>
+    <string name="prueba_vida_rechazada_titulo">No pudimos verificarte</string>
+    <string name="prueba_vida_rechazada_mensaje_generico">No pudimos validar tu identidad con estas fotos.</string>
+    <string name="prueba_vida_motivo_rostro_no_coincide">Tu rostro no coincide con tu documento.</string>
+    <string name="prueba_vida_motivo_suplantacion">Detectamos un intento de suplantación.</string>
+    <string name="prueba_vida_motivo_gesto_no_detectado">No detectamos el gesto pedido.</string>
+    <string name="prueba_vida_motivo_calidad_insuficiente">La calidad de las fotos no fue suficiente.</string>
+    <string name="prueba_vida_revision_manual_titulo">Pasamos tu caso a revisión manual</string>
+    <string name="prueba_vida_revision_manual_mensaje">Un asesor revisará tu identidad y te contactará.</string>
+    <string name="prueba_vida_intentos_restantes">Te quedan %1$d intentos</string>
+    <string name="prueba_vida_reintentar">Reintentar</string>
+    <string name="prueba_vida_finalizar">Finalizar</string>
 
     <!-- Cotizar desde el móvil (SOLVENTAG5-95) -->
     <string name="cotizacion_titulo">Cotiza tu seguro de vida hipotecario</string>
