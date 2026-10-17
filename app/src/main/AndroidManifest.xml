@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Prueba de vida por selfie (SOLVENTAG5-90, D5). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
     <!-- Datos personales y financieros (caso 6.4): sin respaldo en la nube ni transferencia
          entre dispositivos, y sin tráfico en claro salvo hacia el entorno local en dev. -->
@@ -32,6 +36,10 @@
             android:name=".features.cotizacion.CotizacionActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name=".features.pruebavida.PruebaVidaActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

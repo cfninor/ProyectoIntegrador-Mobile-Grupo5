@@ -42,6 +42,47 @@ class ClienteHttp(
         }
     }
 
+    /**
+     * Envía [archivos] como un `multipart/form-data` con varias partes del mismo [campo], cada
+     * una JPEG. Lanza [IOException] si no hubo respuesta.
+     */
+    @Throws(IOException::class)
+    fun postMultipartJpegs(ruta: String, campo: String, archivos: List<ByteArray>): RespuestaHttp {
+        val limite = "SolventaLimite${System.currentTimeMillis()}"
+        val conexion = URI("$apiBaseUrl$ruta").toURL().openConnection() as HttpURLConnection
+        try {
+            conexion.requestMethod = "POST"
+            conexion.connectTimeout = timeoutMs
+            conexion.readTimeout = timeoutMs
+            conexion.doOutput = true
+            conexion.setRequestProperty("Content-Type", "multipart/form-data; boundary=$limite")
+            conexion.setRequestProperty("Accept", "application/json")
+            conexion.outputStream.use { salida ->
+                archivos.forEachIndexed { indice, archivo ->
+                    salida.write("--$limite\r\n".toByteArray())
+                    salida.write(
+                        "Content-Disposition: form-data; name=\"$campo\"; filename=\"$campo$indice.jpg\"\r\n"
+                            .toByteArray(),
+                    )
+                    salida.write("Content-Type: image/jpeg\r\n\r\n".toByteArray())
+                    salida.write(archivo)
+                    salida.write("\r\n".toByteArray())
+                }
+                salida.write("--$limite--\r\n".toByteArray())
+            }
+
+            val codigo = conexion.responseCode
+            val flujo = if (codigo < HttpURLConnection.HTTP_BAD_REQUEST) {
+                conexion.inputStream
+            } else {
+                conexion.errorStream
+            }
+            return RespuestaHttp(codigo, flujo?.bufferedReader()?.use { it.readText() }.orEmpty())
+        } finally {
+            conexion.disconnect()
+        }
+    }
+
     companion object {
         const val TIMEOUT_MS = 10_000
     }
