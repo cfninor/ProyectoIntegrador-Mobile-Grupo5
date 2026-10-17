@@ -187,7 +187,11 @@ class PruebaVidaActivity : AppCompatActivity() {
         capturarSiguiente(capturaActual, mutableListOf())
     }
 
-    private fun capturarSiguiente(capturaActual: ImageCapture, acumulado: MutableList<ByteArray>) {
+    /** `@VisibleForTesting`: cuando `acumulado` ya llega completo (el caso al que converge
+     * [agregarCuadroYSeguir]) no toca `capturaActual`, así que las pruebas pueden ejercitar
+     * ese camino con cualquier `ImageCapture`, sin CameraX real corriendo. */
+    @VisibleForTesting
+    internal fun capturarSiguiente(capturaActual: ImageCapture, acumulado: MutableList<ByteArray>) {
         if (acumulado.size >= CUADROS_POR_INTENTO) {
             capturando = false
             enviarCapturas(acumulado)
@@ -197,19 +201,24 @@ class PruebaVidaActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(imagen: ImageProxy) {
-                    acumulado += imagen.jpegBytes()
+                    val bytes = imagen.jpegBytes()
                     imagen.close()
-                    capturarSiguiente(capturaActual, acumulado)
+                    agregarCuadroYSeguir(bytes, capturaActual, acumulado)
                 }
 
                 override fun onError(excepcion: ImageCaptureException) {
-                    capturando = false
-                    binding.capturar.isEnabled = true
-                    binding.mensajeError.setText(R.string.prueba_vida_error_captura)
-                    binding.mensajeError.visibility = View.VISIBLE
+                    manejarErrorCaptura()
                 }
             },
         )
+    }
+
+    /** Separado de `onCaptureSuccess` para no depender de un `ImageProxy` real en las pruebas:
+     * recibe los bytes ya extraídos. */
+    @VisibleForTesting
+    internal fun agregarCuadroYSeguir(bytes: ByteArray, capturaActual: ImageCapture, acumulado: MutableList<ByteArray>) {
+        acumulado += bytes
+        capturarSiguiente(capturaActual, acumulado)
     }
 
     private fun ImageProxy.jpegBytes(): ByteArray {
@@ -217,6 +226,14 @@ class PruebaVidaActivity : AppCompatActivity() {
         val bytes = ByteArray(buffer.remaining())
         buffer.get(bytes)
         return bytes
+    }
+
+    @VisibleForTesting
+    internal fun manejarErrorCaptura() {
+        capturando = false
+        binding.capturar.isEnabled = true
+        binding.mensajeError.setText(R.string.prueba_vida_error_captura)
+        binding.mensajeError.visibility = View.VISIBLE
     }
 
     /** Envía los cuadros ya capturados; separado de [capturar] para que las pruebas lo ejerciten

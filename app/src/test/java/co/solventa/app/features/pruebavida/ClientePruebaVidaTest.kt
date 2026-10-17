@@ -103,6 +103,13 @@ class ClientePruebaVidaTest {
     }
 
     @Test
+    fun `un 201 con un cuerpo JSON malformado es no disponible`() {
+        val url = bffFalso(201, "esto no es JSON", mutableMapOf())
+
+        assertEquals(ResultadoIniciarPruebaVida.NoDisponible, ClientePruebaVida(url).iniciar("x"))
+    }
+
+    @Test
     fun `sin servidor iniciar es sin conexión`() {
         val url = bffFalso(201, "{}", mutableMapOf())
         servidor?.stop(0)
@@ -187,6 +194,20 @@ class ClientePruebaVidaTest {
     @Test
     fun `504 el proveedor sin respuesta también es no disponible`() {
         val url = bffFalso(504, """{"codigo":"PROVEEDOR_KYC_SIN_RESPUESTA","detalle":"x"}""", mutableMapOf())
+
+        assertEquals(ResultadoCapturaPruebaVida.NoDisponible, ClientePruebaVida(url).registrarCapturas("c", "p", cuadros))
+    }
+
+    @Test
+    fun `200 con un cuerpo JSON malformado en capturas es no disponible`() {
+        val url = bffFalso(200, "esto no es JSON", mutableMapOf())
+
+        assertEquals(ResultadoCapturaPruebaVida.NoDisponible, ClientePruebaVida(url).registrarCapturas("c", "p", cuadros))
+    }
+
+    @Test
+    fun `200 con un resultado desconocido en capturas es no disponible`() {
+        val url = bffFalso(200, """{"resultado":"NO_EXISTE","intento":1,"intentosRestantes":2}""", mutableMapOf())
 
         assertEquals(ResultadoCapturaPruebaVida.NoDisponible, ClientePruebaVida(url).registrarCapturas("c", "p", cuadros))
     }

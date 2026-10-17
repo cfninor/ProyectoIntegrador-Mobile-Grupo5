@@ -15,6 +15,7 @@ import com.sun.net.httpserver.HttpServer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -259,4 +260,61 @@ class PruebaVidaActivityRobolectricTest {
             )
         }
     }
+
+    @Test
+    fun `sin inyectar un cliente de prueba usa el de producción`() {
+        shadowOf(ApplicationProvider.getApplicationContext<Application>()).denyPermissions(Manifest.permission.CAMERA)
+        val intent = PruebaVidaActivity.intent(ApplicationProvider.getApplicationContext(), "clienteId")
+        ActivityScenario.launch<PruebaVidaActivity>(intent).use { escenario ->
+            escenario.onActivity { actividad -> assertNotNull(actividad.cliente) }
+        }
+    }
+
+    @Test
+    fun `conceder el permiso de cámara en el diálogo continúa el flujo`() {
+        shadowOf(ApplicationProvider.getApplicationContext<Application>()).denyPermissions(Manifest.permission.CAMERA)
+        val url = bffFalso()
+        PruebaVidaActivity.clienteDePrueba = ClientePruebaVida(url, timeoutMs = 2_000)
+        val intent = PruebaVidaActivity.intent(ApplicationProvider.getApplicationContext(), "clienteId")
+        try {
+            ActivityScenario.launch<PruebaVidaActivity>(intent).use { escenario ->
+                escenario.onActivity { actividad ->
+                    val solicitud = shadowOf(actividad).lastRequestedPermission
+                    shadowOf(ApplicationProvider.getApplicationContext<Application>())
+                        .grantPermissions(Manifest.permission.CAMERA)
+                    actividad.onRequestPermissionsResult(
+                        solicitud.requestCode,
+                        solicitud.requestedPermissions,
+                        IntArray(solicitud.requestedPermissions.size) { PackageManager.PERMISSION_GRANTED },
+                    )
+                    actividad.esperar()
+
+                    assertTrue(actividad.seccionVisible(R.id.camara))
+                }
+            }
+        } finally {
+            PruebaVidaActivity.clienteDePrueba = null
+        }
+    }
+
+    @Test
+    fun `tocar capturar sin cámara lista no hace nada`() = abrir(bffFalso()) { actividad ->
+        actividad.esperar()
+
+        actividad.findViewById<View>(R.id.capturar).performClick()
+
+        assertTrue(actividad.seccionVisible(R.id.camara))
+    }
+
+    @Test
+    fun `manejarErrorCaptura deja la cámara lista para reintentar`() = abrir(bffFalso()) { actividad ->
+        actividad.esperar()
+        actividad.findViewById<Button>(R.id.capturar).isEnabled = false
+
+        actividad.manejarErrorCaptura()
+
+        assertEquals(actividad.getString(R.string.prueba_vida_error_captura), actividad.textoDe(R.id.mensajeError))
+        assertTrue(actividad.findViewById<Button>(R.id.capturar).isEnabled)
+    }
+
 }
