@@ -19,6 +19,28 @@ class ClienteHttp(
 
     /** Lanza [IOException] si no hubo respuesta: sin red, tiempo de espera o conexión rechazada. */
     @Throws(IOException::class)
+    fun getJson(ruta: String): RespuestaHttp {
+        val conexion = URI("$apiBaseUrl$ruta").toURL().openConnection() as HttpURLConnection
+        try {
+            conexion.requestMethod = "GET"
+            conexion.connectTimeout = timeoutMs
+            conexion.readTimeout = timeoutMs
+            conexion.setRequestProperty("Accept", "application/json")
+
+            val codigo = conexion.responseCode
+            val flujo = if (codigo < HttpURLConnection.HTTP_BAD_REQUEST) {
+                conexion.inputStream
+            } else {
+                conexion.errorStream
+            }
+            return RespuestaHttp(codigo, flujo?.bufferedReader()?.use { it.readText() }.orEmpty())
+        } finally {
+            conexion.disconnect()
+        }
+    }
+
+    /** Lanza [IOException] si no hubo respuesta: sin red, tiempo de espera o conexión rechazada. */
+    @Throws(IOException::class)
     fun postJson(ruta: String, cuerpo: JSONObject): RespuestaHttp {
         val conexion = URI("$apiBaseUrl$ruta").toURL().openConnection() as HttpURLConnection
         try {
