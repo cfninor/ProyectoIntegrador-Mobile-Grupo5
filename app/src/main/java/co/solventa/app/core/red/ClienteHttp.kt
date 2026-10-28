@@ -25,7 +25,7 @@ class ClienteHttp(
             conexion.requestMethod = "GET"
             conexion.connectTimeout = timeoutMs
             conexion.readTimeout = timeoutMs
-            conexion.setRequestProperty("Accept", "application/json")
+            conexion.setRequestProperty("Accept", TIPO_JSON)
 
             val codigo = conexion.responseCode
             val flujo = if (codigo < HttpURLConnection.HTTP_BAD_REQUEST) {
@@ -48,8 +48,8 @@ class ClienteHttp(
             conexion.connectTimeout = timeoutMs
             conexion.readTimeout = timeoutMs
             conexion.doOutput = true
-            conexion.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-            conexion.setRequestProperty("Accept", "application/json")
+            conexion.setRequestProperty("Content-Type", "$TIPO_JSON; charset=utf-8")
+            conexion.setRequestProperty("Accept", TIPO_JSON)
             conexion.outputStream.use { it.write(cuerpo.toString().toByteArray()) }
 
             val codigo = conexion.responseCode
@@ -78,7 +78,7 @@ class ClienteHttp(
             conexion.readTimeout = timeoutMs
             conexion.doOutput = true
             conexion.setRequestProperty("Content-Type", "multipart/form-data; boundary=$limite")
-            conexion.setRequestProperty("Accept", "application/json")
+            conexion.setRequestProperty("Accept", TIPO_JSON)
             conexion.outputStream.use { salida ->
                 archivos.forEachIndexed { indice, archivo ->
                     salida.write("--$limite\r\n".toByteArray())
@@ -107,5 +107,6 @@ class ClienteHttp(
 
     companion object {
         const val TIMEOUT_MS = 10_000
+        private const val TIPO_JSON = "application/json"
     }
 }
