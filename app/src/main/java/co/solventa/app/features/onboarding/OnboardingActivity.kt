@@ -1,5 +1,7 @@
 package co.solventa.app.features.onboarding
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -16,7 +18,10 @@ import co.solventa.app.core.config.AppConfig
 import co.solventa.app.core.red.PermisoRedLocal
 import co.solventa.app.databinding.ActivityOnboardingBinding
 import co.solventa.app.features.cotizacion.CotizacionActivity
+import co.solventa.app.features.pruebavida.ClientePruebaVida
 import co.solventa.app.features.pruebavida.PruebaVidaActivity
+import co.solventa.app.features.pruebavida.ResultadoConsultarOnboarding
+import co.solventa.app.features.pruebavida.SiguientePaso
 import com.google.android.material.textfield.TextInputLayout
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -32,7 +37,15 @@ class OnboardingActivity : AppCompatActivity() {
     /** Las pruebas lo reemplazan por un cliente que apunta a un BFF de prueba. */
     @VisibleForTesting
     internal var cliente = ClienteOnboarding(AppConfig.actual().apiBaseUrl)
+
+    /** D6 de la SOLVENTAG5-91: para consultar el estado al reabrir con un `clienteId`
+     * existente. Las pruebas lo fijan en [clientePruebaVidaDePrueba] antes de lanzar la
+     * actividad, igual que [PruebaVidaActivity.clienteDePrueba]. */
+    @VisibleForTesting
+    internal var clientePruebaVida = clientePruebaVidaDePrueba ?: ClientePruebaVida(AppConfig.actual().apiBaseUrl)
     private val hilo: ExecutorService = Executors.newSingleThreadExecutor()
+
+    private val clienteIdExistente: String? by lazy { intent.getStringExtra(EXTRA_CLIENTE_ID) }
 
     /** Campos que el cliente ya tocó: solo a esos se les muestra el error, no al abrir. */
     private val tocados = mutableSetOf<Campo>()
@@ -58,6 +71,12 @@ class OnboardingActivity : AppCompatActivity() {
             insets
         }
 
+        val idExistente = clienteIdExistente
+        if (idExistente != null) {
+            consultarEstadoExistente(idExistente)
+            return
+        }
+
         savedInstanceState?.let { estado ->
             tipoDocumento = estado.getString(ESTADO_TIPO)?.let(TipoDocumento::valueOf)
             estado.getStringArrayList(ESTADO_TOCADOS)?.mapTo(tocados, Campo::valueOf)
@@ -69,6 +88,54 @@ class OnboardingActivity : AppCompatActivity() {
         observar(binding.correo, Campo.CORREO)
         observar(binding.celular, Campo.CELULAR)
         binding.continuar.setOnClickListener { enviar() }
+    }
+
+    /** D6: al reabrir con un `clienteId` existente, consulta su estado y navega según
+     * `siguientePaso` (R7) en vez de mostrar el formulario. Una falla (de red o del núcleo) no
+     * bloquea abrir la pantalla: cae al mismo «éxito» con las dos acciones de siempre, igual que
+     * si `siguientePaso` fuera PRUEBA_VIDA. */
+    private fun consultarEstadoExistente(clienteId: String) {
+        binding.formulario.visibility = View.GONE
+        binding.consultando.visibility = View.VISIBLE
+        hilo.execute {
+            val estado = clientePruebaVida.consultarOnboarding(clienteId)
+            runOnUiThread { if (!isDestroyed) mostrarSegunEstadoExistente(clienteId, estado) }
+        }
+    }
+
+    @VisibleForTesting
+    internal fun mostrarSegunEstadoExistente(clienteId: String, estado: ResultadoConsultarOnboarding) {
+        binding.consultando.visibility = View.GONE
+        when (estado) {
+            is ResultadoConsultarOnboarding.Obtenido -> when (estado.siguientePaso) {
+                SiguientePaso.COTIZAR -> {
+                    startActivity(CotizacionActivity.intent(this, clienteId))
+                    finish()
+                }
+                SiguientePaso.ESPERAR_REVISION -> mostrarEnRevision()
+                SiguientePaso.PRUEBA_VIDA -> mostrarExito(clienteId)
+            }
+            ResultadoConsultarOnboarding.ClienteNoEncontrado,
+            ResultadoConsultarOnboarding.NoDisponible,
+            ResultadoConsultarOnboarding.SinConexion,
+            -> mostrarExito(clienteId)
+        }
+    }
+
+    private fun mostrarExito(clienteId: String) {
+        binding.exito.visibility = View.VISIBLE
+        binding.verificarIdentidad.visibility = View.VISIBLE
+        binding.cotizarSeguro.visibility = View.VISIBLE
+        binding.verificarIdentidad.setOnClickListener {
+            startActivity(PruebaVidaActivity.intent(this, clienteId))
+        }
+        binding.cotizarSeguro.setOnClickListener {
+            startActivity(CotizacionActivity.intent(this, clienteId))
+        }
+    }
+
+    private fun mostrarEnRevision() {
+        binding.enRevision.visibility = View.VISIBLE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -144,15 +211,10 @@ class OnboardingActivity : AppCompatActivity() {
         when (resultado) {
             is ResultadoOnboarding.Iniciado -> {
                 binding.formulario.visibility = View.GONE
-                binding.exito.visibility = View.VISIBLE
-                // El siguiente paso del onboarding (criterio 3 de la 90).
-                binding.verificarIdentidad.setOnClickListener {
-                    startActivity(PruebaVidaActivity.intent(this, resultado.clienteId))
-                }
-                // Con el clienteId, el núcleo cotiza con el perfil de riesgo del cliente.
-                binding.cotizarSeguro.setOnClickListener {
-                    startActivity(CotizacionActivity.intent(this, resultado.clienteId))
-                }
+                // El siguiente paso del onboarding (criterio 3 de la 90): recién creado, el
+                // cliente siempre está PENDIENTE, así que es el mismo «éxito» con las dos
+                // acciones de siempre (D6 de la SOLVENTAG5-91).
+                mostrarExito(resultado.clienteId)
             }
             is ResultadoOnboarding.Invalido -> {
                 resultado.campos.forEach { campo ->
@@ -207,8 +269,19 @@ class OnboardingActivity : AppCompatActivity() {
         ErrorCampo.CELULAR_INVALIDO -> R.string.onboarding_error_celular
     }
 
-    private companion object {
-        const val ESTADO_TIPO = "tipoDocumento"
-        const val ESTADO_TOCADOS = "tocados"
+    companion object {
+        private const val ESTADO_TIPO = "tipoDocumento"
+        private const val ESTADO_TOCADOS = "tocados"
+        private const val EXTRA_CLIENTE_ID = "co.solventa.app.extra.CLIENTE_ID"
+
+        /** El cliente de prueba vida que usará la próxima actividad que se cree; solo lo fijan
+         * las pruebas (D6 de la SOLVENTAG5-91). */
+        @VisibleForTesting
+        internal var clientePruebaVidaDePrueba: ClientePruebaVida? = null
+
+        /** Sin `clienteId`: el formulario de siempre. Con uno (D6): consulta su estado antes de
+         * mostrar nada. */
+        fun intent(contexto: Context, clienteId: String? = null): Intent =
+            Intent(contexto, OnboardingActivity::class.java).putExtra(EXTRA_CLIENTE_ID, clienteId)
     }
 }

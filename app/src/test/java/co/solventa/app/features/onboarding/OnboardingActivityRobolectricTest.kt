@@ -3,15 +3,18 @@ package co.solventa.app.features.onboarding
 import android.os.Looper
 import android.view.View
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import co.solventa.app.R
 import co.solventa.app.features.cotizacion.CotizacionActivity
+import co.solventa.app.features.pruebavida.ClientePruebaVida
 import co.solventa.app.features.pruebavida.PruebaVidaActivity
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.sun.net.httpserver.HttpServer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -216,6 +219,110 @@ class OnboardingActivityRobolectricTest {
             escenario.onActivity { actividad ->
                 assertTrue(actividad.continuar().isEnabled)
             }
+        }
+    }
+
+    // --- D6: reabrir con un clienteId existente (SOLVENTAG5-91) ---------------------------------
+
+    private fun bffOnboardingFalso(codigo: Int, cuerpo: String): String {
+        val http = HttpServer.create(InetSocketAddress("localhost", 0), 0)
+        http.createContext("/") { intercambio ->
+            val bytes = cuerpo.toByteArray()
+            intercambio.sendResponseHeaders(codigo, bytes.size.toLong().coerceAtLeast(1))
+            intercambio.responseBody.use { it.write(bytes) }
+        }
+        http.start()
+        servidor = http
+        return "http://localhost:${http.address.port}"
+    }
+
+    private fun abrirConClienteId(apiBaseUrl: String, prueba: (OnboardingActivity) -> Unit) {
+        OnboardingActivity.clientePruebaVidaDePrueba = ClientePruebaVida(apiBaseUrl, timeoutMs = 1_000)
+        val intent = OnboardingActivity.intent(ApplicationProvider.getApplicationContext(), "clienteId")
+        try {
+            ActivityScenario.launch<OnboardingActivity>(intent).use { escenario ->
+                escenario.onActivity { actividad -> actividad.esperarConsulta(); prueba(actividad) }
+            }
+        } finally {
+            OnboardingActivity.clientePruebaVidaDePrueba = null
+        }
+    }
+
+    private fun OnboardingActivity.esperarConsulta() {
+        val limite = System.currentTimeMillis() + 5_000
+        while (findViewById<View>(R.id.consultando).visibility == View.VISIBLE &&
+            System.currentTimeMillis() < limite
+        ) {
+            Thread.sleep(20)
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+    }
+
+    @Test
+    fun `reabrir con siguientePaso COTIZAR navega directo a cotizar`() {
+        val url = bffOnboardingFalso(
+            200,
+            """{"clienteId":"c","estado":"ONBOARDING_EN_CURSO","estadoKYC":"VERIFICADO","siguientePaso":"COTIZAR","intentosRestantes":2}""",
+        )
+        abrirConClienteId(url) { actividad ->
+            val siguiente = shadowOf(actividad).nextStartedActivity
+            assertNotNull(siguiente)
+            assertEquals(CotizacionActivity::class.java.name, siguiente.component?.className)
+            assertEquals("clienteId", siguiente.getStringExtra(CotizacionActivity.EXTRA_CLIENTE_ID))
+            assertTrue(actividad.isFinishing)
+        }
+    }
+
+    @Test
+    fun `reabrir con siguientePaso ESPERAR_REVISION muestra la pantalla en revisión sin botones`() {
+        val url = bffOnboardingFalso(
+            200,
+            """{"clienteId":"c","estado":"ONBOARDING_EN_CURSO","estadoKYC":"EN_REVISION_MANUAL","siguientePaso":"ESPERAR_REVISION","intentosRestantes":0}""",
+        )
+        abrirConClienteId(url) { actividad ->
+            assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.enRevision).visibility)
+            assertEquals(View.GONE, actividad.findViewById<View>(R.id.exito).visibility)
+            assertEquals(View.GONE, actividad.findViewById<View>(R.id.formulario).visibility)
+        }
+    }
+
+    @Test
+    fun `reabrir con siguientePaso PRUEBA_VIDA muestra el éxito con las dos acciones de siempre`() {
+        val url = bffOnboardingFalso(
+            200,
+            """{"clienteId":"c","estado":"ONBOARDING_EN_CURSO","estadoKYC":"PENDIENTE","siguientePaso":"PRUEBA_VIDA","intentosRestantes":3}""",
+        )
+        abrirConClienteId(url) { actividad ->
+            assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.exito).visibility)
+            assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.verificarIdentidad).visibility)
+            assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.cotizarSeguro).visibility)
+
+            actividad.findViewById<View>(R.id.verificarIdentidad).performClick()
+            val siguiente = shadowOf(actividad).nextStartedActivity
+            assertEquals(PruebaVidaActivity::class.java.name, siguiente.component?.className)
+            assertEquals("clienteId", siguiente.getStringExtra(PruebaVidaActivity.EXTRA_CLIENTE_ID))
+        }
+    }
+
+    @Test
+    fun `intent sin clienteId abre el formulario de siempre`() {
+        val intent = OnboardingActivity.intent(ApplicationProvider.getApplicationContext())
+        ActivityScenario.launch<OnboardingActivity>(intent).use { escenario ->
+            escenario.onActivity { actividad ->
+                assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.formulario).visibility)
+                assertFalse(actividad.continuar().isEnabled)
+            }
+        }
+    }
+
+    @Test
+    fun `una falla de red al consultar el estado no bloquea abrir, cae al éxito de siempre`() {
+        val url = bffOnboardingFalso(200, "{}")
+        servidor?.stop(0)
+        abrirConClienteId(url) { actividad ->
+            assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.exito).visibility)
+            assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.verificarIdentidad).visibility)
+            assertEquals(View.VISIBLE, actividad.findViewById<View>(R.id.cotizarSeguro).visibility)
         }
     }
 }

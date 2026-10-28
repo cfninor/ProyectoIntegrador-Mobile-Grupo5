@@ -64,16 +64,20 @@
     <string name="prueba_vida_aprobada_titulo">Identity verified!</string>
     <string name="prueba_vida_aprobada_mensaje">Your liveness check was approved.</string>
     <string name="prueba_vida_rechazada_titulo">We could not verify you</string>
-    <string name="prueba_vida_rechazada_mensaje_generico">We could not validate your identity with these photos.</string>
-    <string name="prueba_vida_motivo_rostro_no_coincide">Your face does not match your ID document.</string>
-    <string name="prueba_vida_motivo_suplantacion">We detected a spoofing attempt.</string>
-    <string name="prueba_vida_motivo_gesto_no_detectado">We did not detect the requested gesture.</string>
-    <string name="prueba_vida_motivo_calidad_insuficiente">The photo quality was not enough.</string>
-    <string name="prueba_vida_revision_manual_titulo">Your case was sent to manual review</string>
+    <!-- No motivo: the attempt expired before sending the captures (R8, SOLVENTAG5-91). -->
+    <string name="prueba_vida_rechazada_mensaje_generico">The time to take the photos ran out.</string>
+    <string name="prueba_vida_motivo_rostro_no_coincide">We could not confirm your face matches your ID document. Try again without glasses, a hat or a mask.</string>
+    <!-- Generic on purpose, without revealing what the system detected (D8, SOLVENTAG5-91). -->
+    <string name="prueba_vida_motivo_suplantacion">We could not complete the verification.</string>
+    <string name="prueba_vida_motivo_gesto_no_detectado">We did not detect the requested gesture. Try again following the on-screen instruction.</string>
+    <string name="prueba_vida_motivo_calidad_insuficiente">The photo quality was not enough. Find more light and hold your phone still.</string>
+    <string name="prueba_vida_revision_manual_titulo">Your verification is under review</string>
     <string name="prueba_vida_revision_manual_mensaje">An advisor will review your identity and contact you.</string>
     <string name="prueba_vida_intentos_restantes">%1$d attempts left</string>
     <string name="prueba_vida_reintentar">Try again</string>
     <string name="prueba_vida_finalizar">Finish</string>
+    <string name="prueba_vida_solicitar_revision_manual">Request manual review</string>
+    <string name="prueba_vida_error_revision_manual">We could not send your manual review request. Try again.</string>
 
     <!-- Quote from the mobile app (SOLVENTAG5-95) -->
     <string name="cotizacion_titulo">Get a quote for your mortgage life insurance</string>

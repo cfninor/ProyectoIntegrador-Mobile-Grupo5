@@ -24,6 +24,7 @@ import co.solventa.app.R
 import co.solventa.app.core.config.AppConfig
 import co.solventa.app.core.red.PermisoRedLocal
 import co.solventa.app.databinding.ActivityPruebaVidaBinding
+import co.solventa.app.features.cotizacion.CotizacionActivity
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -48,6 +49,10 @@ class PruebaVidaActivity : AppCompatActivity() {
     private var proveedorCamara: ProcessCameraProvider? = null
     private var captura: ImageCapture? = null
     private var capturando = false
+
+    /** El rechazo que se ve ahora, para poder redibujar sus dos acciones si «Solicitar
+     * revisión manual» falla (R6 de la SOLVENTAG5-91). */
+    private var rechazoActual: ResultadoCapturaPruebaVida.Resuelta? = null
 
     private val pedirCamara = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -130,6 +135,9 @@ class PruebaVidaActivity : AppCompatActivity() {
                 R.string.prueba_vida_error_sin_intentos,
                 accion = AccionFinal.FINALIZAR,
             )
+            // R4: no hace falta repetir la prueba. El 409 no trae el siguiente paso, así que se
+            // consulta (R7, D6): la app nunca lo deduce del resultado.
+            ResultadoIniciarPruebaVida.KycYaVerificado -> consultarYNavegar()
             ResultadoIniciarPruebaVida.NoDisponible -> mostrarFinal(
                 R.string.prueba_vida_error_titulo,
                 R.string.prueba_vida_error_no_disponible,
@@ -140,6 +148,52 @@ class PruebaVidaActivity : AppCompatActivity() {
                 R.string.prueba_vida_error_sin_conexion,
                 accion = AccionFinal.REINTENTAR,
             )
+        }
+    }
+
+    /** D6: consulta el estado del onboarding y navega según `siguientePaso` (R7). */
+    private fun consultarYNavegar() {
+        mostrarCargando(R.string.prueba_vida_cargando)
+        hilo.execute {
+            val estado = cliente.consultarOnboarding(clienteId)
+            runOnUiThread { if (!isDestroyed) manejarEstadoOnboarding(estado) }
+        }
+    }
+
+    /** `@VisibleForTesting`: así las pruebas cubren SinConexion sin tener que cronometrar un
+     * corte de red justo entre el 409 de `iniciar` y esta segunda consulta. */
+    @VisibleForTesting
+    internal fun manejarEstadoOnboarding(estado: ResultadoConsultarOnboarding) {
+        when (estado) {
+            is ResultadoConsultarOnboarding.Obtenido -> irASiguientePaso(estado.siguientePaso)
+            ResultadoConsultarOnboarding.ClienteNoEncontrado -> mostrarFinal(
+                R.string.prueba_vida_error_titulo,
+                R.string.prueba_vida_error_cliente_no_encontrado,
+                accion = AccionFinal.FINALIZAR,
+            )
+            ResultadoConsultarOnboarding.NoDisponible -> mostrarFinal(
+                R.string.prueba_vida_error_titulo,
+                R.string.prueba_vida_error_no_disponible,
+                accion = AccionFinal.REINTENTAR,
+            )
+            ResultadoConsultarOnboarding.SinConexion -> mostrarFinal(
+                R.string.prueba_vida_error_titulo,
+                R.string.prueba_vida_error_sin_conexion,
+                accion = AccionFinal.REINTENTAR,
+            )
+        }
+    }
+
+    /** R7: la app navega según `siguientePaso`, nunca lo deduce. COTIZAR es el único que sale
+     * de esta pantalla; cualquier otro (incluido uno que la app no conozca todavía, ya resuelto
+     * como ESPERAR_REVISION por el cliente HTTP) se queda aquí, en la pantalla neutra. */
+    private fun irASiguientePaso(paso: SiguientePaso) {
+        when (paso) {
+            SiguientePaso.COTIZAR -> {
+                startActivity(CotizacionActivity.intent(this, clienteId))
+                finish()
+            }
+            SiguientePaso.ESPERAR_REVISION, SiguientePaso.PRUEBA_VIDA -> mostrarEnRevision()
         }
     }
 
@@ -250,24 +304,7 @@ class PruebaVidaActivity : AppCompatActivity() {
 
     private fun mostrarResultadoCapturas(resultado: ResultadoCapturaPruebaVida) {
         when (resultado) {
-            is ResultadoCapturaPruebaVida.Resuelta -> when (resultado.resultado) {
-                ResultadoPruebaVida.APROBADA -> mostrarFinal(
-                    R.string.prueba_vida_aprobada_titulo,
-                    R.string.prueba_vida_aprobada_mensaje,
-                    accion = AccionFinal.FINALIZAR,
-                )
-                ResultadoPruebaVida.REVISION_MANUAL -> mostrarFinal(
-                    R.string.prueba_vida_revision_manual_titulo,
-                    R.string.prueba_vida_revision_manual_mensaje,
-                    accion = AccionFinal.FINALIZAR,
-                )
-                ResultadoPruebaVida.RECHAZADA -> mostrarFinal(
-                    R.string.prueba_vida_rechazada_titulo,
-                    mensajeDeMotivo(resultado.motivo),
-                    resultado.intentosRestantes,
-                    accion = AccionFinal.REINTENTAR,
-                )
-            }
+            is ResultadoCapturaPruebaVida.Resuelta -> mostrarResuelta(resultado)
             ResultadoCapturaPruebaVida.RecursoNoEncontrado -> mostrarFinal(
                 R.string.prueba_vida_error_titulo,
                 R.string.prueba_vida_error_cliente_no_encontrado,
@@ -280,6 +317,71 @@ class PruebaVidaActivity : AppCompatActivity() {
             )
             ResultadoCapturaPruebaVida.NoDisponible -> volverACamaraConError(R.string.prueba_vida_error_envio)
             ResultadoCapturaPruebaVida.SinConexion -> volverACamaraConError(R.string.prueba_vida_error_sin_conexion)
+        }
+    }
+
+    /** R7: la pantalla sigue `siguientePaso`, no `resultado` (que solo decide el mensaje, R8). */
+    private fun mostrarResuelta(resuelta: ResultadoCapturaPruebaVida.Resuelta) {
+        when (resuelta.siguientePaso) {
+            SiguientePaso.COTIZAR -> {
+                mostrarFinal(
+                    R.string.prueba_vida_aprobada_titulo,
+                    R.string.prueba_vida_aprobada_mensaje,
+                    accion = AccionFinal.FINALIZAR,
+                )
+                startActivity(CotizacionActivity.intent(this, clienteId))
+                finish()
+            }
+            SiguientePaso.PRUEBA_VIDA -> mostrarRechazoConOpciones(resuelta)
+            SiguientePaso.ESPERAR_REVISION -> mostrarEnRevision()
+        }
+    }
+
+    /** R8: el motivo (o su ausencia, si venció) y las dos acciones: reintentar o pedir
+     * revisión manual (R6). */
+    private fun mostrarRechazoConOpciones(resuelta: ResultadoCapturaPruebaVida.Resuelta, @StringRes error: Int? = null) {
+        rechazoActual = resuelta
+        proveedorCamara?.unbindAll()
+        binding.cargando.visibility = View.GONE
+        binding.camara.visibility = View.GONE
+        binding.resultadoTitulo.setText(R.string.prueba_vida_rechazada_titulo)
+        binding.resultadoMensaje.setText(mensajeDeMotivo(resuelta.motivo))
+        binding.resultadoIntentos.text = getString(R.string.prueba_vida_intentos_restantes, resuelta.intentosRestantes)
+        binding.resultadoIntentos.visibility = View.VISIBLE
+        if (error != null) {
+            binding.resultadoError.setText(error)
+            binding.resultadoError.visibility = View.VISIBLE
+        } else {
+            binding.resultadoError.visibility = View.GONE
+        }
+        binding.resultadoAccion.setText(R.string.prueba_vida_reintentar)
+        binding.resultadoAccion.setOnClickListener { comenzar() }
+        binding.resultadoAccionSecundaria.visibility = View.VISIBLE
+        binding.resultadoAccionSecundaria.isEnabled = true
+        binding.resultadoAccionSecundaria.setOnClickListener { solicitarRevisionManual() }
+        binding.resultado.visibility = View.VISIBLE
+    }
+
+    /** Resultado automático (tercer rechazo) o revisión manual voluntaria aceptada: misma
+     * pantalla, sin botón de reintento (R6, flujo de «Referencia común»). */
+    private fun mostrarEnRevision() = mostrarFinal(
+        R.string.prueba_vida_revision_manual_titulo,
+        R.string.prueba_vida_revision_manual_mensaje,
+        accion = AccionFinal.FINALIZAR,
+    )
+
+    private fun solicitarRevisionManual() {
+        mostrarCargando(R.string.prueba_vida_enviando)
+        hilo.execute {
+            val resultado = cliente.solicitarRevisionManual(clienteId)
+            runOnUiThread { if (!isDestroyed) manejarRevisionManual(resultado) }
+        }
+    }
+
+    private fun manejarRevisionManual(resultado: ResultadoSolicitarRevisionManual) {
+        when (resultado) {
+            is ResultadoSolicitarRevisionManual.Aceptada -> mostrarEnRevision()
+            else -> rechazoActual?.let { mostrarRechazoConOpciones(it, error = R.string.prueba_vida_error_revision_manual) }
         }
     }
 
@@ -304,20 +406,17 @@ class PruebaVidaActivity : AppCompatActivity() {
     private fun mostrarFinal(
         @StringRes titulo: Int,
         @StringRes mensaje: Int,
-        intentosRestantes: Int? = null,
         accion: AccionFinal,
     ) {
+        rechazoActual = null
         proveedorCamara?.unbindAll()
         binding.cargando.visibility = View.GONE
         binding.camara.visibility = View.GONE
         binding.resultadoTitulo.setText(titulo)
         binding.resultadoMensaje.setText(mensaje)
-        if (intentosRestantes != null) {
-            binding.resultadoIntentos.text = getString(R.string.prueba_vida_intentos_restantes, intentosRestantes)
-            binding.resultadoIntentos.visibility = View.VISIBLE
-        } else {
-            binding.resultadoIntentos.visibility = View.GONE
-        }
+        binding.resultadoIntentos.visibility = View.GONE
+        binding.resultadoError.visibility = View.GONE
+        binding.resultadoAccionSecundaria.visibility = View.GONE
         binding.resultadoAccion.setText(
             if (accion == AccionFinal.REINTENTAR) R.string.prueba_vida_reintentar else R.string.prueba_vida_finalizar,
         )

@@ -78,8 +78,22 @@ class ClientePruebaVidaTest {
     }
 
     @Test
-    fun `409 es sin intentos`() {
+    fun `409 SIN_INTENTOS es sin intentos`() {
         val url = bffFalso(409, """{"codigo":"SIN_INTENTOS","detalle":"x"}""", mutableMapOf())
+
+        assertEquals(ResultadoIniciarPruebaVida.SinIntentos, ClientePruebaVida(url).iniciar("x"))
+    }
+
+    @Test
+    fun `409 KYC_YA_VERIFICADO no hace falta repetir la prueba`() {
+        val url = bffFalso(409, """{"codigo":"KYC_YA_VERIFICADO","detalle":"x"}""", mutableMapOf())
+
+        assertEquals(ResultadoIniciarPruebaVida.KycYaVerificado, ClientePruebaVida(url).iniciar("x"))
+    }
+
+    @Test
+    fun `409 con otro codigo distinto es sin intentos por defecto`() {
+        val url = bffFalso(409, """{"codigo":"OTRO","detalle":"x"}""", mutableMapOf())
 
         assertEquals(ResultadoIniciarPruebaVida.SinIntentos, ClientePruebaVida(url).iniciar("x"))
     }
@@ -124,11 +138,24 @@ class ClientePruebaVidaTest {
     @Test
     fun `envía los cuadros como multipart y devuelve la aprobación`() {
         val recibido = mutableMapOf<String, String>()
-        val url = bffFalso(200, """{"resultado":"APROBADA","intento":1,"intentosRestantes":2}""", recibido)
+        val url = bffFalso(
+            200,
+            """{"resultado":"APROBADA","intento":1,"intentosRestantes":2,"estadoKYC":"VERIFICADO","siguientePaso":"COTIZAR"}""",
+            recibido,
+        )
 
         val resultado = ClientePruebaVida(url).registrarCapturas("clienteId", "pruebaVidaId", cuadros)
 
-        assertEquals(ResultadoCapturaPruebaVida.Resuelta(ResultadoPruebaVida.APROBADA, null, 2), resultado)
+        assertEquals(
+            ResultadoCapturaPruebaVida.Resuelta(
+                ResultadoPruebaVida.APROBADA,
+                null,
+                2,
+                EstadoKyc.VERIFICADO,
+                SiguientePaso.COTIZAR,
+            ),
+            resultado,
+        )
         assertEquals("POST", recibido["metodo"])
         assertEquals("/v1/onboarding/clienteId/pruebas-vida/pruebaVidaId/capturas", recibido["ruta"])
         assertTrue(recibido.getValue("contentType").startsWith("multipart/form-data"))
@@ -142,14 +169,20 @@ class ClientePruebaVidaTest {
     fun `rechazada trae su motivo y los intentos restantes`() {
         val url = bffFalso(
             200,
-            """{"resultado":"RECHAZADA","motivo":"ROSTRO_NO_COINCIDE","intento":1,"intentosRestantes":2}""",
+            """{"resultado":"RECHAZADA","motivo":"ROSTRO_NO_COINCIDE","intento":1,"intentosRestantes":2,"estadoKYC":"PENDIENTE","siguientePaso":"PRUEBA_VIDA"}""",
             mutableMapOf(),
         )
 
         val resultado = ClientePruebaVida(url).registrarCapturas("c", "p", cuadros)
 
         assertEquals(
-            ResultadoCapturaPruebaVida.Resuelta(ResultadoPruebaVida.RECHAZADA, MotivoPruebaVida.ROSTRO_NO_COINCIDE, 2),
+            ResultadoCapturaPruebaVida.Resuelta(
+                ResultadoPruebaVida.RECHAZADA,
+                MotivoPruebaVida.ROSTRO_NO_COINCIDE,
+                2,
+                EstadoKyc.PENDIENTE,
+                SiguientePaso.PRUEBA_VIDA,
+            ),
             resultado,
         )
     }
@@ -158,16 +191,53 @@ class ClientePruebaVidaTest {
     fun `el tercer rechazo pasa a revisión manual sin intentos restantes`() {
         val url = bffFalso(
             200,
-            """{"resultado":"REVISION_MANUAL","motivo":"GESTO_NO_DETECTADO","intento":3,"intentosRestantes":0}""",
+            """{"resultado":"REVISION_MANUAL","motivo":"GESTO_NO_DETECTADO","intento":3,"intentosRestantes":0,"estadoKYC":"EN_REVISION_MANUAL","siguientePaso":"ESPERAR_REVISION"}""",
             mutableMapOf(),
         )
 
         val resultado = ClientePruebaVida(url).registrarCapturas("c", "p", cuadros)
 
         assertEquals(
-            ResultadoCapturaPruebaVida.Resuelta(ResultadoPruebaVida.REVISION_MANUAL, MotivoPruebaVida.GESTO_NO_DETECTADO, 0),
+            ResultadoCapturaPruebaVida.Resuelta(
+                ResultadoPruebaVida.REVISION_MANUAL,
+                MotivoPruebaVida.GESTO_NO_DETECTADO,
+                0,
+                EstadoKyc.EN_REVISION_MANUAL,
+                SiguientePaso.ESPERAR_REVISION,
+            ),
             resultado,
         )
+    }
+
+    @Test
+    fun `sin estadoKYC ni siguientePaso en el cuerpo, se asumen PENDIENTE y ESPERAR_REVISION`() {
+        val url = bffFalso(200, """{"resultado":"APROBADA","intento":1,"intentosRestantes":2}""", mutableMapOf())
+
+        val resultado = ClientePruebaVida(url).registrarCapturas("c", "p", cuadros)
+
+        assertEquals(
+            ResultadoCapturaPruebaVida.Resuelta(
+                ResultadoPruebaVida.APROBADA,
+                null,
+                2,
+                EstadoKyc.PENDIENTE,
+                SiguientePaso.ESPERAR_REVISION,
+            ),
+            resultado,
+        )
+    }
+
+    @Test
+    fun `un siguientePaso que la app no conoce todavía se trata como ESPERAR_REVISION`() {
+        val url = bffFalso(
+            200,
+            """{"resultado":"APROBADA","intento":1,"intentosRestantes":2,"estadoKYC":"VERIFICADO","siguientePaso":"CAPTURAR_DOCUMENTO"}""",
+            mutableMapOf(),
+        )
+
+        val resultado = ClientePruebaVida(url).registrarCapturas("c", "p", cuadros) as ResultadoCapturaPruebaVida.Resuelta
+
+        assertEquals(SiguientePaso.ESPERAR_REVISION, resultado.siguientePaso)
     }
 
     @Test
@@ -220,5 +290,111 @@ class ClientePruebaVidaTest {
         val resultado = ClientePruebaVida(url, timeoutMs = 1_000).registrarCapturas("c", "p", cuadros)
 
         assertEquals(ResultadoCapturaPruebaVida.SinConexion, resultado)
+    }
+
+    // --- consultarOnboarding (D6) -------------------------------------------------------------
+
+    @Test
+    fun `200 trae el estado actual del onboarding`() {
+        val recibido = mutableMapOf<String, String>()
+        val url = bffFalso(
+            200,
+            """{"clienteId":"c","estado":"ONBOARDING_EN_CURSO","estadoKYC":"EN_REVISION_MANUAL","siguientePaso":"ESPERAR_REVISION","intentosRestantes":0}""",
+            recibido,
+        )
+
+        val resultado = ClientePruebaVida(url).consultarOnboarding("clienteId")
+
+        assertEquals(
+            ResultadoConsultarOnboarding.Obtenido(EstadoKyc.EN_REVISION_MANUAL, SiguientePaso.ESPERAR_REVISION, 0),
+            resultado,
+        )
+        assertEquals("GET", recibido["metodo"])
+        assertEquals("/v1/onboarding/clienteId", recibido["ruta"])
+    }
+
+    @Test
+    fun `consultarOnboarding con un siguientePaso desconocido lo trata como ESPERAR_REVISION`() {
+        val url = bffFalso(
+            200,
+            """{"clienteId":"c","estado":"ONBOARDING_EN_CURSO","estadoKYC":"VERIFICADO","siguientePaso":"CAPTURAR_DOCUMENTO","intentosRestantes":2}""",
+            mutableMapOf(),
+        )
+
+        val resultado = ClientePruebaVida(url).consultarOnboarding("c") as ResultadoConsultarOnboarding.Obtenido
+
+        assertEquals(SiguientePaso.ESPERAR_REVISION, resultado.siguientePaso)
+    }
+
+    @Test
+    fun `consultarOnboarding 404 es cliente no encontrado`() {
+        val url = bffFalso(404, """{"codigo":"CLIENTE_NO_ENCONTRADO","detalle":"x"}""", mutableMapOf())
+
+        assertEquals(ResultadoConsultarOnboarding.ClienteNoEncontrado, ClientePruebaVida(url).consultarOnboarding("c"))
+    }
+
+    @Test
+    fun `consultarOnboarding 503 es no disponible`() {
+        val url = bffFalso(503, """{"codigo":"NUCLEO_NO_DISPONIBLE","detalle":"x"}""", mutableMapOf())
+
+        assertEquals(ResultadoConsultarOnboarding.NoDisponible, ClientePruebaVida(url).consultarOnboarding("c"))
+    }
+
+    @Test
+    fun `sin servidor consultarOnboarding es sin conexión`() {
+        val url = bffFalso(200, "{}", mutableMapOf())
+        servidor?.stop(0)
+
+        val resultado = ClientePruebaVida(url, timeoutMs = 1_000).consultarOnboarding("c")
+
+        assertEquals(ResultadoConsultarOnboarding.SinConexion, resultado)
+    }
+
+    // --- solicitarRevisionManual (R6) ---------------------------------------------------------
+
+    @Test
+    fun `200 acepta la revision manual voluntaria`() {
+        val recibido = mutableMapOf<String, String>()
+        val url = bffFalso(
+            200,
+            """{"estadoKYC":"EN_REVISION_MANUAL","siguientePaso":"ESPERAR_REVISION"}""",
+            recibido,
+        )
+
+        val resultado = ClientePruebaVida(url).solicitarRevisionManual("clienteId")
+
+        assertEquals(
+            ResultadoSolicitarRevisionManual.Aceptada(EstadoKyc.EN_REVISION_MANUAL, SiguientePaso.ESPERAR_REVISION),
+            resultado,
+        )
+        assertEquals("POST", recibido["metodo"])
+        assertEquals("/v1/onboarding/clienteId/revision-manual", recibido["ruta"])
+    }
+
+    @Test
+    fun `solicitarRevisionManual 404 es cliente no encontrado`() {
+        val url = bffFalso(404, """{"codigo":"CLIENTE_NO_ENCONTRADO","detalle":"x"}""", mutableMapOf())
+
+        assertEquals(
+            ResultadoSolicitarRevisionManual.ClienteNoEncontrado,
+            ClientePruebaVida(url).solicitarRevisionManual("c"),
+        )
+    }
+
+    @Test
+    fun `solicitarRevisionManual 409 REVISION_MANUAL_NO_DISPONIBLE es no disponible`() {
+        val url = bffFalso(409, """{"codigo":"REVISION_MANUAL_NO_DISPONIBLE","detalle":"x"}""", mutableMapOf())
+
+        assertEquals(ResultadoSolicitarRevisionManual.NoDisponible, ClientePruebaVida(url).solicitarRevisionManual("c"))
+    }
+
+    @Test
+    fun `sin servidor solicitarRevisionManual es sin conexión`() {
+        val url = bffFalso(200, "{}", mutableMapOf())
+        servidor?.stop(0)
+
+        val resultado = ClientePruebaVida(url, timeoutMs = 1_000).solicitarRevisionManual("c")
+
+        assertEquals(ResultadoSolicitarRevisionManual.SinConexion, resultado)
     }
 }
