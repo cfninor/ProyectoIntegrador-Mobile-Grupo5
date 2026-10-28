@@ -121,10 +121,30 @@
             android:textAppearance="?attr/textAppearanceLabelLarge"
             android:visibility="gone" />
 
+        <TextView
+            android:id="@+id/resultadoError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:accessibilityLiveRegion="polite"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorError"
+            android:visibility="gone" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/resultadoAccion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resultadoAccionSecundaria"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/prueba_vida_solicitar_revision_manual"
+            android:visibility="gone" />
     </LinearLayout>
 </FrameLayout>

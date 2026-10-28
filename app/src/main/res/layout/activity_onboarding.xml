@@ -209,5 +209,48 @@
                 android:layout_marginTop="12dp"
                 android:text="@string/onboarding_exito_cotizar" />
         </LinearLayout>
+
+        <!-- Al reabrir con un clienteId existente (D6 de la SOLVENTAG5-91): mientras se consulta
+             el estado, antes de decidir si mostrar "exito", "enRevision" o ir a cotizar. -->
+        <LinearLayout
+            android:id="@+id/consultando"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="48dp"
+            android:visibility="gone">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/enRevision"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="48dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/enRevisionTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/prueba_vida_revision_manual_titulo"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="@string/prueba_vida_revision_manual_mensaje"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

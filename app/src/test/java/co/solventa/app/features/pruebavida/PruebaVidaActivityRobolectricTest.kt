@@ -11,6 +11,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import co.solventa.app.R
+import co.solventa.app.features.cotizacion.CotizacionActivity
 import com.sun.net.httpserver.HttpServer
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -39,18 +40,27 @@ class PruebaVidaActivityRobolectricTest {
         servidor?.stop(0)
     }
 
-    /** `respuestaIniciar` para `POST .../pruebas-vida`, `respuestaCapturas` para `.../capturas`. */
+    /** `respuestaIniciar` para `POST .../pruebas-vida`, `respuestaCapturas` para `.../capturas`,
+     * `respuestaOnboarding` para `GET .../onboarding` y `respuestaRevisionManual` para
+     * `POST .../revision-manual` (SOLVENTAG5-91). */
     private fun bffFalso(
         respuestaIniciar: Pair<Int, String> =
             200 to """{"pruebaVidaId":"p1","gesto":"PARPADEAR","intento":1,"intentosRestantes":2,"expiraEn":"x"}""",
-        respuestaCapturas: Pair<Int, String> = 200 to """{"resultado":"APROBADA","intento":1,"intentosRestantes":2}""",
+        respuestaCapturas: Pair<Int, String> = 200 to
+            """{"resultado":"APROBADA","intento":1,"intentosRestantes":2,"estadoKYC":"VERIFICADO","siguientePaso":"COTIZAR"}""",
+        respuestaOnboarding: Pair<Int, String> = 200 to
+            """{"clienteId":"c","estado":"ONBOARDING_EN_CURSO","estadoKYC":"VERIFICADO","siguientePaso":"COTIZAR","intentosRestantes":2}""",
+        respuestaRevisionManual: Pair<Int, String> = 200 to
+            """{"estadoKYC":"EN_REVISION_MANUAL","siguientePaso":"ESPERAR_REVISION"}""",
     ): String {
         val http = HttpServer.create(InetSocketAddress("localhost", 0), 0)
         http.createContext("/") { intercambio ->
-            val (codigo, cuerpo) = if (intercambio.requestURI.path.endsWith("/capturas")) {
-                respuestaCapturas
-            } else {
-                respuestaIniciar
+            val ruta = intercambio.requestURI.path
+            val (codigo, cuerpo) = when {
+                ruta.endsWith("/capturas") -> respuestaCapturas
+                ruta.endsWith("/revision-manual") -> respuestaRevisionManual
+                ruta.endsWith("/pruebas-vida") -> respuestaIniciar
+                else -> respuestaOnboarding // GET /v1/onboarding/{clienteId}: no tiene un sufijo propio
             }
             val bytes = cuerpo.toByteArray()
             intercambio.sendResponseHeaders(codigo, bytes.size.toLong().coerceAtLeast(1))
@@ -205,26 +215,31 @@ class PruebaVidaActivityRobolectricTest {
     }
 
     @Test
-    fun `aprobada muestra el mensaje final sin intentos restantes`() {
-        val url = bffFalso(respuestaCapturas = 200 to """{"resultado":"APROBADA","intento":1,"intentosRestantes":2}""")
+    fun `aprobada navega sola a cotizar segun siguientePaso`() {
+        val url = bffFalso(
+            respuestaCapturas = 200 to
+                """{"resultado":"APROBADA","intento":1,"intentosRestantes":2,"estadoKYC":"VERIFICADO","siguientePaso":"COTIZAR"}""",
+        )
         abrir(url) { actividad ->
             actividad.esperar()
             actividad.enviarCapturas(cuadros)
             actividad.esperar()
 
-            assertTrue(actividad.seccionVisible(R.id.resultado))
             assertEquals(actividad.getString(R.string.prueba_vida_aprobada_titulo), actividad.textoDe(R.id.resultadoTitulo))
-            assertFalse(actividad.seccionVisible(R.id.resultadoIntentos))
+            val siguiente = shadowOf(actividad).nextStartedActivity
+            assertNotNull(siguiente)
+            assertEquals(CotizacionActivity::class.java.name, siguiente.component?.className)
+            assertTrue(actividad.isFinishing)
         }
     }
 
     @Test
-    fun `rechazada muestra el motivo y los intentos restantes, y reintentar vuelve a pedir el intento`() {
+    fun `rechazada muestra el motivo, los intentos restantes y las dos acciones`() {
         val url = bffFalso(
             respuestaIniciar = 201 to
                 """{"pruebaVidaId":"p1","gesto":"PARPADEAR","intento":1,"intentosRestantes":2,"expiraEn":"x"}""",
             respuestaCapturas = 200 to
-                """{"resultado":"RECHAZADA","motivo":"ROSTRO_NO_COINCIDE","intento":1,"intentosRestantes":2}""",
+                """{"resultado":"RECHAZADA","motivo":"ROSTRO_NO_COINCIDE","intento":1,"intentosRestantes":2,"estadoKYC":"PENDIENTE","siguientePaso":"PRUEBA_VIDA"}""",
         )
         abrir(url) { actividad ->
             actividad.esperar()
@@ -236,12 +251,192 @@ class PruebaVidaActivityRobolectricTest {
                 actividad.textoDe(R.id.resultadoMensaje),
             )
             assertEquals(actividad.getString(R.string.prueba_vida_intentos_restantes, 2), actividad.textoDe(R.id.resultadoIntentos))
+            assertTrue(actividad.seccionVisible(R.id.resultadoAccionSecundaria))
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_solicitar_revision_manual),
+                actividad.findViewById<Button>(R.id.resultadoAccionSecundaria).text.toString(),
+            )
 
             actividad.findViewById<Button>(R.id.resultadoAccion).performClick()
             actividad.esperar()
 
             assertTrue(actividad.seccionVisible(R.id.camara))
         }
+    }
+
+    @Test
+    fun `solicitar revision manual acepta y muestra la pantalla en revision sin reintento`() {
+        val url = bffFalso(
+            respuestaCapturas = 200 to
+                """{"resultado":"RECHAZADA","motivo":"ROSTRO_NO_COINCIDE","intento":1,"intentosRestantes":2,"estadoKYC":"PENDIENTE","siguientePaso":"PRUEBA_VIDA"}""",
+            respuestaRevisionManual = 200 to
+                """{"estadoKYC":"EN_REVISION_MANUAL","siguientePaso":"ESPERAR_REVISION"}""",
+        )
+        abrir(url) { actividad ->
+            actividad.esperar()
+            actividad.enviarCapturas(cuadros)
+            actividad.esperar()
+
+            actividad.findViewById<Button>(R.id.resultadoAccionSecundaria).performClick()
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_revision_manual_titulo),
+                actividad.textoDe(R.id.resultadoTitulo),
+            )
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_finalizar),
+                actividad.findViewById<Button>(R.id.resultadoAccion).text.toString(),
+            )
+            assertFalse(actividad.seccionVisible(R.id.resultadoAccionSecundaria))
+        }
+    }
+
+    @Test
+    fun `solicitar revision manual con una falla deja las dos acciones para reintentar`() {
+        val url = bffFalso(
+            respuestaCapturas = 200 to
+                """{"resultado":"RECHAZADA","motivo":"ROSTRO_NO_COINCIDE","intento":1,"intentosRestantes":2,"estadoKYC":"PENDIENTE","siguientePaso":"PRUEBA_VIDA"}""",
+            respuestaRevisionManual = 409 to """{"codigo":"REVISION_MANUAL_NO_DISPONIBLE","detalle":"x"}""",
+        )
+        abrir(url) { actividad ->
+            actividad.esperar()
+            actividad.enviarCapturas(cuadros)
+            actividad.esperar()
+
+            actividad.findViewById<Button>(R.id.resultadoAccionSecundaria).performClick()
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_error_revision_manual),
+                actividad.textoDe(R.id.resultadoError),
+            )
+            assertTrue(actividad.seccionVisible(R.id.resultadoAccionSecundaria))
+            assertTrue(actividad.findViewById<Button>(R.id.resultadoAccionSecundaria).isEnabled)
+        }
+    }
+
+    @Test
+    fun `el tercer rechazo automatico tampoco deja reintentar`() {
+        val url = bffFalso(
+            respuestaCapturas = 200 to
+                """{"resultado":"REVISION_MANUAL","motivo":"CALIDAD_INSUFICIENTE","intento":3,"intentosRestantes":0,"estadoKYC":"EN_REVISION_MANUAL","siguientePaso":"ESPERAR_REVISION"}""",
+        )
+        abrir(url) { actividad ->
+            actividad.esperar()
+            actividad.enviarCapturas(cuadros)
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_revision_manual_titulo),
+                actividad.textoDe(R.id.resultadoTitulo),
+            )
+            assertFalse(actividad.seccionVisible(R.id.resultadoAccionSecundaria))
+        }
+    }
+
+    @Test
+    fun `un siguientePaso desconocido en capturas no navega y queda en pantalla neutra`() {
+        val url = bffFalso(
+            respuestaCapturas = 200 to
+                """{"resultado":"APROBADA","intento":1,"intentosRestantes":2,"estadoKYC":"VERIFICADO","siguientePaso":"CAPTURAR_DOCUMENTO"}""",
+        )
+        abrir(url) { actividad ->
+            actividad.esperar()
+            actividad.enviarCapturas(cuadros)
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_revision_manual_titulo),
+                actividad.textoDe(R.id.resultadoTitulo),
+            )
+        }
+    }
+
+    @Test
+    fun `kyc ya verificado al iniciar consulta el estado y navega a cotizar`() {
+        val url = bffFalso(
+            respuestaIniciar = 409 to """{"codigo":"KYC_YA_VERIFICADO","detalle":"x"}""",
+            respuestaOnboarding = 200 to
+                """{"clienteId":"c","estado":"ONBOARDING_EN_CURSO","estadoKYC":"VERIFICADO","siguientePaso":"COTIZAR","intentosRestantes":2}""",
+        )
+        abrir(url) { actividad ->
+            actividad.esperar()
+
+            val siguiente = shadowOf(actividad).nextStartedActivity
+            assertNotNull(siguiente)
+            assertEquals(CotizacionActivity::class.java.name, siguiente.component?.className)
+            assertTrue(actividad.isFinishing)
+        }
+    }
+
+    @Test
+    fun `kyc ya verificado con siguientePaso en revision no navega y queda en pantalla neutra`() {
+        val url = bffFalso(
+            respuestaIniciar = 409 to """{"codigo":"KYC_YA_VERIFICADO","detalle":"x"}""",
+            respuestaOnboarding = 200 to
+                """{"clienteId":"c","estado":"ONBOARDING_EN_CURSO","estadoKYC":"EN_REVISION_MANUAL","siguientePaso":"ESPERAR_REVISION","intentosRestantes":0}""",
+        )
+        abrir(url) { actividad ->
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_revision_manual_titulo),
+                actividad.textoDe(R.id.resultadoTitulo),
+            )
+        }
+    }
+
+    @Test
+    fun `kyc ya verificado y la consulta del estado falla con cliente no encontrado`() {
+        val url = bffFalso(
+            respuestaIniciar = 409 to """{"codigo":"KYC_YA_VERIFICADO","detalle":"x"}""",
+            respuestaOnboarding = 404 to """{"codigo":"CLIENTE_NO_ENCONTRADO","detalle":"x"}""",
+        )
+        abrir(url) { actividad ->
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_error_cliente_no_encontrado),
+                actividad.textoDe(R.id.resultadoMensaje),
+            )
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_finalizar),
+                actividad.findViewById<Button>(R.id.resultadoAccion).text.toString(),
+            )
+        }
+    }
+
+    @Test
+    fun `kyc ya verificado y la consulta del estado no esta disponible deja reintentar`() {
+        val url = bffFalso(
+            respuestaIniciar = 409 to """{"codigo":"KYC_YA_VERIFICADO","detalle":"x"}""",
+            respuestaOnboarding = 503 to """{"codigo":"NUCLEO_NO_DISPONIBLE","detalle":"x"}""",
+        )
+        abrir(url) { actividad ->
+            actividad.esperar()
+
+            assertEquals(
+                actividad.getString(R.string.prueba_vida_reintentar),
+                actividad.findViewById<Button>(R.id.resultadoAccion).text.toString(),
+            )
+        }
+    }
+
+    @Test
+    fun `manejarEstadoOnboarding sin conexion deja reintentar`() = abrir(bffFalso()) { actividad ->
+        actividad.esperar()
+
+        actividad.manejarEstadoOnboarding(ResultadoConsultarOnboarding.SinConexion)
+
+        assertEquals(
+            actividad.getString(R.string.prueba_vida_error_sin_conexion),
+            actividad.textoDe(R.id.resultadoMensaje),
+        )
+        assertEquals(
+            actividad.getString(R.string.prueba_vida_reintentar),
+            actividad.findViewById<Button>(R.id.resultadoAccion).text.toString(),
+        )
     }
 
     @Test

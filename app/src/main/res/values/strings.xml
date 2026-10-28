@@ -67,16 +67,20 @@
     <string name="prueba_vida_aprobada_titulo">¡Identidad verificada!</string>
     <string name="prueba_vida_aprobada_mensaje">Tu prueba de vida fue aprobada.</string>
     <string name="prueba_vida_rechazada_titulo">No pudimos verificarte</string>
-    <string name="prueba_vida_rechazada_mensaje_generico">No pudimos validar tu identidad con estas fotos.</string>
-    <string name="prueba_vida_motivo_rostro_no_coincide">Tu rostro no coincide con tu documento.</string>
-    <string name="prueba_vida_motivo_suplantacion">Detectamos un intento de suplantación.</string>
-    <string name="prueba_vida_motivo_gesto_no_detectado">No detectamos el gesto pedido.</string>
-    <string name="prueba_vida_motivo_calidad_insuficiente">La calidad de las fotos no fue suficiente.</string>
-    <string name="prueba_vida_revision_manual_titulo">Pasamos tu caso a revisión manual</string>
+    <!-- Sin motivo: el intento venció antes de enviar las capturas (R8 de la SOLVENTAG5-91). -->
+    <string name="prueba_vida_rechazada_mensaje_generico">El tiempo para tomar las fotos terminó.</string>
+    <string name="prueba_vida_motivo_rostro_no_coincide">No pudimos confirmar que tu rostro coincide con tu documento. Reintenta sin gafas, gorra ni tapabocas.</string>
+    <!-- Mensaje genérico a propósito, sin revelar qué detectó el sistema (D8 de la SOLVENTAG5-91). -->
+    <string name="prueba_vida_motivo_suplantacion">No pudimos completar la verificación.</string>
+    <string name="prueba_vida_motivo_gesto_no_detectado">No detectamos el gesto que te pedimos. Reintenta siguiendo la instrucción en pantalla.</string>
+    <string name="prueba_vida_motivo_calidad_insuficiente">La imagen no tiene la calidad suficiente. Busca más luz y mantén el teléfono quieto.</string>
+    <string name="prueba_vida_revision_manual_titulo">Tu verificación está en revisión</string>
     <string name="prueba_vida_revision_manual_mensaje">Un asesor revisará tu identidad y te contactará.</string>
     <string name="prueba_vida_intentos_restantes">Te quedan %1$d intentos</string>
     <string name="prueba_vida_reintentar">Reintentar</string>
     <string name="prueba_vida_finalizar">Finalizar</string>
+    <string name="prueba_vida_solicitar_revision_manual">Solicitar revisión manual</string>
+    <string name="prueba_vida_error_revision_manual">No pudimos enviar tu solicitud de revisión manual. Intenta de nuevo.</string>
 
     <!-- Cotizar desde el móvil (SOLVENTAG5-95) -->
     <string name="cotizacion_titulo">Cotiza tu seguro de vida hipotecario</string>
