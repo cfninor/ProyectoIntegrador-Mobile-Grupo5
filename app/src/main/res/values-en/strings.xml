@@ -110,4 +110,63 @@
     <string name="cotizacion_sin_perfil_sin_cliente">We calculated your premium with a standard risk profile. If you complete your onboarding, we can personalize it.</string>
     <string name="cotizacion_sin_perfil_sin_consentimiento">We calculated your premium with a standard risk profile because we do not have your permission to check your data.</string>
     <string name="cotizacion_sin_perfil_no_disponible">Your risk profile was not available in time, so we calculated your premium with a standard profile.</string>
+
+    <!-- Policy wallet (SOLVENTAG5-104): "My policies" and the policy detail. -->
+    <string name="inicio_mis_polizas">My policies</string>
+    <string name="polizas_titulo">My policies</string>
+    <string name="polizas_cargando">Loading your policies…</string>
+    <string name="polizas_vacio_titulo">You do not have any policies yet</string>
+    <string name="polizas_vacio_texto">When you buy an insurance policy, you will see its number, status and coverage period here.</string>
+    <string name="polizas_vacio_cotizar">Get an insurance quote</string>
+    <string name="polizas_error_no_disponible">We could not load your policies. Please try again in a few minutes.</string>
+    <string name="polizas_error_sin_conexion">We could not connect. Check your connection and try again.</string>
+    <string name="polizas_reintentar">Try again</string>
+    <string name="poliza_producto_vida_hipotecario">Mortgage life insurance</string>
+    <string name="poliza_numero">Policy No. %1$s</string>
+    <string name="poliza_sin_numero">Policy being issued</string>
+    <string name="poliza_vigencia">Coverage: %1$s</string>
+    <string name="poliza_estado_vigente">Active</string>
+    <string name="poliza_estado_pendiente_firma">Pending signature</string>
+    <string name="poliza_estado_cancelada">Cancelled</string>
+    <string name="poliza_estado_vencida">Expired</string>
+    <string name="poliza_estado_desconocido">No status</string>
+    <string name="poliza_abrir_detalle">View the details of policy %1$s</string>
+    <string name="detalle_titulo">Policy details</string>
+    <string name="detalle_cargando">Loading the policy…</string>
+    <string name="detalle_no_encontrada">We could not find this policy.</string>
+    <string name="detalle_seccion_cobertura">Coverage</string>
+    <string name="detalle_tomador">Policyholder</string>
+    <string name="detalle_tomador_valor">%1$s\n%2$s</string>
+    <string name="detalle_suma_asegurada">Sum insured</string>
+    <string name="detalle_prima">Premium</string>
+    <string name="detalle_prima_mensual">%1$s per month</string>
+    <string name="detalle_beneficiario">Beneficiary</string>
+    <string name="detalle_vigencia">Coverage period</string>
+    <string name="detalle_proximo_cobro">Next payment</string>
+    <string name="detalle_proximo_cobro_valor">%1$s for %2$s</string>
+    <string name="detalle_seccion_pagos">Payment history</string>
+    <string name="detalle_sin_pagos">There are no payments yet.</string>
+    <string name="detalle_pago">%1$s · %2$s</string>
+    <string name="detalle_seccion_documentos">Documents</string>
+    <string name="detalle_descargar_poliza">Policy schedule and general terms (PDF)</string>
+    <string name="detalle_seccion_certificado">Signature certificate</string>
+    <string name="detalle_certificado">Signed on %1$s
+Reference: %2$s
+Document fingerprint: %3$s</string>
+    <string name="detalle_descargando">Downloading the document…</string>
+    <string name="detalle_documento_no_disponible_aun">This document is not available yet. Please try again later.</string>
+    <string name="detalle_documento_error">We could not download the document. Please try again.</string>
+    <string name="detalle_sin_visor">We downloaded the document, but there is no app to open PDF files on this device.</string>
+
+    <!-- Customer sign-in in the app (SOLVENTAG5-104). -->
+    <string name="sesion_titulo">Sign in</string>
+    <string name="sesion_subtitulo">Use the email and password of your Solventa portal account.</string>
+    <string name="sesion_correo">Email</string>
+    <string name="sesion_contrasena">Password</string>
+    <string name="sesion_entrar">Sign in</string>
+    <string name="sesion_entrando">Signing in</string>
+    <string name="sesion_error_credenciales">The email or password is incorrect.</string>
+    <string name="sesion_error_sin_confirmar">Confirm your email from the Solventa portal before signing in.</string>
+    <string name="sesion_error_no_disponible">We could not sign you in. Please try again in a few minutes.</string>
+    <string name="sesion_error_sin_conexion">We could not connect. Check your connection and try again.</string>
 </resources>

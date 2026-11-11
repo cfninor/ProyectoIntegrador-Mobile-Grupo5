@@ -15,7 +15,13 @@ data class RespuestaHttp(val codigo: Int, val cuerpo: String)
 class ClienteHttp(
     private val apiBaseUrl: String,
     private val timeoutMs: Int = TIMEOUT_MS,
+    /** El ID token de la sesión del cliente, para las rutas que la piden; null, sin cabecera. */
+    private val token: () -> String? = { null },
 ) {
+
+    private fun HttpURLConnection.autorizar() {
+        token()?.let { setRequestProperty("Authorization", "Bearer $it") }
+    }
 
     /** Lanza [IOException] si no hubo respuesta: sin red, tiempo de espera o conexión rechazada. */
     @Throws(IOException::class)
@@ -26,6 +32,7 @@ class ClienteHttp(
             conexion.connectTimeout = timeoutMs
             conexion.readTimeout = timeoutMs
             conexion.setRequestProperty("Accept", TIPO_JSON)
+            conexion.autorizar()
 
             val codigo = conexion.responseCode
             val flujo = if (codigo < HttpURLConnection.HTTP_BAD_REQUEST) {
@@ -34,6 +41,32 @@ class ClienteHttp(
                 conexion.errorStream
             }
             return RespuestaHttp(codigo, flujo?.bufferedReader()?.use { it.readText() }.orEmpty())
+        } finally {
+            conexion.disconnect()
+        }
+    }
+
+    /**
+     * Descarga un archivo (un PDF): el cuerpo en bytes si la respuesta es 2xx, o null con
+     * cualquier otro código. Lanza [IOException] si no hubo respuesta.
+     */
+    @Throws(IOException::class)
+    fun getBytes(ruta: String, tipo: String): Pair<Int, ByteArray?> {
+        val conexion = URI("$apiBaseUrl$ruta").toURL().openConnection() as HttpURLConnection
+        try {
+            conexion.requestMethod = "GET"
+            conexion.connectTimeout = timeoutMs
+            conexion.readTimeout = timeoutMs
+            conexion.setRequestProperty("Accept", tipo)
+            conexion.autorizar()
+
+            val codigo = conexion.responseCode
+            val bytes = if (codigo in HttpURLConnection.HTTP_OK until HttpURLConnection.HTTP_MULT_CHOICE) {
+                conexion.inputStream.use { it.readBytes() }
+            } else {
+                null
+            }
+            return codigo to bytes
         } finally {
             conexion.disconnect()
         }

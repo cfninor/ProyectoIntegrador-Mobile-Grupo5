@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import co.solventa.app.databinding.ActivityMainBinding
 import co.solventa.app.features.cotizacion.CotizacionActivity
 import co.solventa.app.features.onboarding.OnboardingActivity
+import co.solventa.app.features.polizas.MisPolizasActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,6 +32,9 @@ class MainActivity : AppCompatActivity() {
         }
         binding.cotizar.setOnClickListener {
             startActivity(CotizacionActivity.intent(this))
+        }
+        binding.misPolizas.setOnClickListener {
+            startActivity(MisPolizasActivity.intent(this))
         }
     }
 }

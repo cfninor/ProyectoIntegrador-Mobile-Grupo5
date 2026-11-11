@@ -41,5 +41,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="@string/inicio_cotizar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/misPolizas"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/inicio_mis_polizas" />
     </LinearLayout>
 </LinearLayout>
