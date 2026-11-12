@@ -40,6 +40,32 @@
         <activity
             android:name=".features.pruebavida.PruebaVidaActivity"
             android:exported="false" />
+
+        <!-- Billetera de pólizas (SOLVENTAG5-104), con el inicio de sesión del cliente. -->
+        <activity
+            android:name=".core.sesion.InicioSesionActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name=".features.polizas.MisPolizasActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.polizas.DetallePolizaActivity"
+            android:exported="false" />
+
+        <!-- Comparte con el visor de PDF los documentos de la póliza descargados en la caché
+             privada, solo con permiso de lectura y solo para esa apertura. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.documentos"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rutas_documentos" />
+        </provider>
     </application>
 
 </manifest>

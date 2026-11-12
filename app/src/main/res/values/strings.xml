@@ -113,4 +113,63 @@
     <string name="cotizacion_sin_perfil_sin_cliente">Calculamos tu prima con un perfil de riesgo estándar. Si completas tu onboarding, podemos personalizarla.</string>
     <string name="cotizacion_sin_perfil_sin_consentimiento">Calculamos tu prima con un perfil de riesgo estándar porque no tenemos tu autorización para consultar tus datos.</string>
     <string name="cotizacion_sin_perfil_no_disponible">Tu perfil de riesgo no estuvo disponible a tiempo, así que calculamos tu prima con un perfil estándar.</string>
+
+    <!-- Billetera de pólizas (SOLVENTAG5-104): «Mis pólizas» y el detalle de la póliza. -->
+    <string name="inicio_mis_polizas">Mis pólizas</string>
+    <string name="polizas_titulo">Mis pólizas</string>
+    <string name="polizas_cargando">Cargando tus pólizas…</string>
+    <string name="polizas_vacio_titulo">Todavía no tienes pólizas</string>
+    <string name="polizas_vacio_texto">Cuando contrates un seguro, aquí verás su número, su estado y su vigencia.</string>
+    <string name="polizas_vacio_cotizar">Cotizar un seguro</string>
+    <string name="polizas_error_no_disponible">No pudimos cargar tus pólizas. Intenta de nuevo en unos minutos.</string>
+    <string name="polizas_error_sin_conexion">No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.</string>
+    <string name="polizas_reintentar">Reintentar</string>
+    <string name="poliza_producto_vida_hipotecario">Vida deudor hipotecario</string>
+    <string name="poliza_numero">Póliza N.º %1$s</string>
+    <string name="poliza_sin_numero">Póliza en proceso de emisión</string>
+    <string name="poliza_vigencia">Vigencia: %1$s</string>
+    <string name="poliza_estado_vigente">Vigente</string>
+    <string name="poliza_estado_pendiente_firma">Pendiente de firma</string>
+    <string name="poliza_estado_cancelada">Cancelada</string>
+    <string name="poliza_estado_vencida">Vencida</string>
+    <string name="poliza_estado_desconocido">Sin estado</string>
+    <string name="poliza_abrir_detalle">Ver el detalle de la póliza %1$s</string>
+    <string name="detalle_titulo">Detalle de la póliza</string>
+    <string name="detalle_cargando">Cargando la póliza…</string>
+    <string name="detalle_no_encontrada">No encontramos esta póliza.</string>
+    <string name="detalle_seccion_cobertura">Cobertura</string>
+    <string name="detalle_tomador">Tomador</string>
+    <string name="detalle_tomador_valor">%1$s\n%2$s</string>
+    <string name="detalle_suma_asegurada">Suma asegurada</string>
+    <string name="detalle_prima">Prima</string>
+    <string name="detalle_prima_mensual">%1$s al mes</string>
+    <string name="detalle_beneficiario">Beneficiario</string>
+    <string name="detalle_vigencia">Vigencia</string>
+    <string name="detalle_proximo_cobro">Próximo cobro</string>
+    <string name="detalle_proximo_cobro_valor">%1$s por %2$s</string>
+    <string name="detalle_seccion_pagos">Historial de pagos</string>
+    <string name="detalle_sin_pagos">Todavía no hay pagos registrados.</string>
+    <string name="detalle_pago">%1$s · %2$s</string>
+    <string name="detalle_seccion_documentos">Documentos</string>
+    <string name="detalle_descargar_poliza">Carátula y condiciones generales (PDF)</string>
+    <string name="detalle_seccion_certificado">Certificado de firma</string>
+    <string name="detalle_certificado">Firmada el %1$s
+Referencia: %2$s
+Huella del documento: %3$s</string>
+    <string name="detalle_descargando">Descargando el documento…</string>
+    <string name="detalle_documento_no_disponible_aun">Este documento todavía no está disponible. Intenta más tarde.</string>
+    <string name="detalle_documento_error">No pudimos descargar el documento. Intenta de nuevo.</string>
+    <string name="detalle_sin_visor">Descargamos el documento, pero no hay una app para abrir PDF en este dispositivo.</string>
+
+    <!-- Inicio de sesión del cliente en la app (SOLVENTAG5-104). -->
+    <string name="sesion_titulo">Inicia sesión</string>
+    <string name="sesion_subtitulo">Usa el correo y la contraseña de tu cuenta en el portal de Solventa.</string>
+    <string name="sesion_correo">Correo electrónico</string>
+    <string name="sesion_contrasena">Contraseña</string>
+    <string name="sesion_entrar">Iniciar sesión</string>
+    <string name="sesion_entrando">Iniciando sesión</string>
+    <string name="sesion_error_credenciales">El correo o la contraseña no son correctos.</string>
+    <string name="sesion_error_sin_confirmar">Confirma tu correo desde el portal de Solventa antes de iniciar sesión.</string>
+    <string name="sesion_error_no_disponible">No pudimos iniciar sesión. Intenta de nuevo en unos minutos.</string>
+    <string name="sesion_error_sin_conexion">No pudimos conectarnos. Revisa tu conexión e intenta de nuevo.</string>
 </resources>

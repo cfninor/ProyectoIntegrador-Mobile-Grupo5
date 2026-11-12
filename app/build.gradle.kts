@@ -18,6 +18,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Sesión del cliente (SOLVENTAG5-104): el cliente app-movil del user pool de Cognito del
+    // ambiente. Sin su id, la app no pide inicio de sesión y el BFF local usa la sesión simulada.
+    // Para probar dev contra AWS: -Psolventa.apiBaseUrl=<movil/url de SSM>
+    // -Psolventa.cognitoClienteMovilId=<cognito/cliente-movil-id de SSM>.
+    val apiBaseUrlDev = providers.gradleProperty("solventa.apiBaseUrl").orNull ?: "http://10.0.2.2:8011"
+    val cognitoClienteMovilId = providers.gradleProperty("solventa.cognitoClienteMovilId").orNull ?: ""
+    defaultConfig {
+        buildConfigField("String", "COGNITO_REGION", "\"us-east-1\"")
+        buildConfigField("String", "COGNITO_CLIENTE_MOVIL_ID", "\"$cognitoClienteMovilId\"")
+    }
+
     // Un flavor por ambiente: cada uno apunta a su BFF móvil y se instala con un id distinto,
     // así DEV, QA y PROD conviven en el mismo dispositivo.
     flavorDimensions += "ambiente"
@@ -28,7 +39,7 @@ android {
             versionNameSuffix = "-dev"
             // 10.0.2.2 es el equipo anfitrión visto desde el emulador; 8011 es el bff-movil
             // del docker-compose del repositorio principal.
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8011\"")
+            buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrlDev\"")
         }
         create("qa") {
             dimension = "ambiente"

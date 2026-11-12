@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solo la carpeta de documentos de la póliza dentro de la caché privada (SOLVENTAG5-104). -->
+<paths>
+    <cache-path name="documentos" path="documentos/" />
+</paths>
