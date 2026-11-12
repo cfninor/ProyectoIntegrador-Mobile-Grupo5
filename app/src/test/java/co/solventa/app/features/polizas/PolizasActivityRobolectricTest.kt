@@ -139,6 +139,37 @@ class PolizasActivityRobolectricTest {
     }
 
     @Test
+    fun `una lista desde la copia sin conexión (SOLVENTAG5-105) se muestra igual que con red, con el aviso`() {
+        fuente.lista = ResultadoPolizas.DesdeCache(listOf(PolizasPrueba.poliza()), "2026-11-11T20:00:00Z")
+        lista { actividad ->
+            assertTrue(actividad.visible(R.id.lista))
+            assertEquals(1, actividad.findViewById<ViewGroup>(R.id.lista).childCount)
+            assertTrue(actividad.visible(R.id.avisoSinConexion))
+            assertEquals(
+                "Sin conexión · actualizado el 11 de noviembre de 2026",
+                actividad.texto(R.id.avisoSinConexion),
+            )
+        }
+    }
+
+    @Test
+    fun `una lista vacía desde la copia sin conexión muestra el estado vacío, con el aviso`() {
+        fuente.lista = ResultadoPolizas.DesdeCache(emptyList(), "2026-11-11T20:00:00Z")
+        lista { actividad ->
+            assertTrue(actividad.visible(R.id.vacio))
+            assertTrue(actividad.visible(R.id.avisoSinConexion))
+        }
+    }
+
+    @Test
+    fun `con red, el aviso de sin conexión no se muestra`() {
+        fuente.lista = ResultadoPolizas.Listadas(listOf(PolizasPrueba.poliza()))
+        lista { actividad ->
+            assertFalse(actividad.visible(R.id.avisoSinConexion))
+        }
+    }
+
+    @Test
     fun `si el BFF no responde muestra el error y reintenta`() {
         fuente.lista = ResultadoPolizas.SinConexion
         lista { actividad ->
@@ -200,6 +231,27 @@ class PolizasActivityRobolectricTest {
             assertTrue(actividad.visible(R.id.seccionCertificado))
             assertTrue(actividad.texto(R.id.certificado), actividad.texto(R.id.certificado).contains("FIRMA-00042"))
             assertEquals(listOf("obtener ${PolizasPrueba.POLIZA_ID}"), fuente.pedidos)
+        }
+    }
+
+    @Test
+    fun `un detalle desde la copia sin conexión (SOLVENTAG5-105) se muestra igual que con red, con el aviso`() {
+        fuente.poliza = ResultadoPoliza.DesdeCache(PolizasPrueba.poliza(), "2026-11-11T20:00:00Z")
+        detalle { actividad ->
+            assertTrue(actividad.visible(R.id.contenido))
+            assertEquals("Póliza N.º SV-VH-2026-000123", actividad.texto(R.id.numero))
+            assertTrue(actividad.visible(R.id.avisoSinConexion))
+            assertEquals(
+                "Sin conexión · actualizado el 11 de noviembre de 2026",
+                actividad.texto(R.id.avisoSinConexion),
+            )
+        }
+    }
+
+    @Test
+    fun `con red, el detalle no muestra el aviso de sin conexión`() {
+        detalle { actividad ->
+            assertFalse(actividad.visible(R.id.avisoSinConexion))
         }
     }
 

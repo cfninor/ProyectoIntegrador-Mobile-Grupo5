@@ -12,6 +12,12 @@ sealed interface ResultadoPolizas {
     /** 200: las pólizas del cliente; vacía si no tiene ninguna (criterio 5: no es un error). */
     data class Listadas(val polizas: List<Poliza>) : ResultadoPolizas
 
+    /**
+     * Sin red, pero [RepositorioBilletera] tenía una copia guardada (SOLVENTAG5-105, D1 criterio
+     * 2); [guardadoEn] es la fecha ISO-8601 en que se guardó.
+     */
+    data class DesdeCache(val polizas: List<Poliza>, val guardadoEn: String) : ResultadoPolizas
+
     /** 503, cuerpo ilegible u otra respuesta inesperada. */
     data object NoDisponible : ResultadoPolizas
 
@@ -25,6 +31,9 @@ sealed interface ResultadoPolizas {
 /** Resultado de pedir una póliza. */
 sealed interface ResultadoPoliza {
     data class Encontrada(val poliza: Poliza) : ResultadoPoliza
+
+    /** Sin red, pero [RepositorioBilletera] tenía esta póliza guardada (SOLVENTAG5-105, D1 criterio 2). */
+    data class DesdeCache(val poliza: Poliza, val guardadoEn: String) : ResultadoPoliza
 
     /** 404: no existe o no es del cliente; las dos se ven igual (criterio 4). */
     data object NoEncontrada : ResultadoPoliza

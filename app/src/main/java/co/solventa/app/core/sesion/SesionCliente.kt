@@ -20,6 +20,14 @@ object SesionCliente {
     @Volatile
     internal var reloj: () -> Long = System::currentTimeMillis
 
+    /**
+     * Se invoca con el ID token que tenía la sesión, antes de cerrarla (SOLVENTAG5-105, R5); lo
+     * registra `RepositorioBilletera` para borrar su copia sin conexión. `SesionCliente` no conoce
+     * la billetera: solo entrega el token que ya tenía, para no depender de `features.polizas`.
+     */
+    @Volatile
+    internal var alCerrar: (idTokenAnterior: String?) -> Unit = {}
+
     val iniciada: Boolean get() = tokens != null
 
     fun guardar(nuevos: Tokens) {
@@ -27,7 +35,9 @@ object SesionCliente {
     }
 
     fun cerrar() {
+        val anterior = tokens?.idToken
         tokens = null
+        alCerrar(anterior)
     }
 
     /**

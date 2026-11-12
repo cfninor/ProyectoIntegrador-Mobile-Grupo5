@@ -160,6 +160,8 @@ Huella del documento: %3$s</string>
     <string name="detalle_documento_no_disponible_aun">Este documento todavía no está disponible. Intenta más tarde.</string>
     <string name="detalle_documento_error">No pudimos descargar el documento. Intenta de nuevo.</string>
     <string name="detalle_sin_visor">Descargamos el documento, pero no hay una app para abrir PDF en este dispositivo.</string>
+    <!-- Billetera sin conexión (SOLVENTAG5-105): el aviso cuando la pantalla muestra la copia guardada. -->
+    <string name="billetera_aviso_sin_conexion">Sin conexión · actualizado el %1$s</string>
 
     <!-- Inicio de sesión del cliente en la app (SOLVENTAG5-104). -->
     <string name="sesion_titulo">Inicia sesión</string>

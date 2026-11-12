@@ -157,6 +157,8 @@ Document fingerprint: %3$s</string>
     <string name="detalle_documento_no_disponible_aun">This document is not available yet. Please try again later.</string>
     <string name="detalle_documento_error">We could not download the document. Please try again.</string>
     <string name="detalle_sin_visor">We downloaded the document, but there is no app to open PDF files on this device.</string>
+    <!-- Offline wallet (SOLVENTAG5-105): the banner when the screen shows the saved copy. -->
+    <string name="billetera_aviso_sin_conexion">Offline · updated on %1$s</string>
 
     <!-- Customer sign-in in the app (SOLVENTAG5-104). -->
     <string name="sesion_titulo">Sign in</string>
