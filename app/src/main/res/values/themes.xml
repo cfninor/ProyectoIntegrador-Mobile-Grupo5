@@ -17,4 +17,15 @@
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
     </style>
+
+    <!-- Aviso de la billetera sin conexión (SOLVENTAG5-105, D7): bajo el título de la pantalla. -->
+    <style name="Solventa.AvisoSinConexion" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:background">?attr/colorSecondaryContainer</item>
+        <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
+    </style>
 </resources>

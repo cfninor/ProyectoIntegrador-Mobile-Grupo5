@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import co.solventa.app.R
+import co.solventa.app.core.almacenamiento.AlmacenCifradoKeystore
 import co.solventa.app.core.config.AppConfig
 import co.solventa.app.core.red.PermisoRedLocal
 import co.solventa.app.core.sesion.InicioSesionActivity
@@ -32,7 +33,7 @@ class MisPolizasActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMisPolizasBinding
 
-    private val fuente: FuentePolizas by lazy { fabricaFuente() }
+    private val fuente: FuentePolizas by lazy { fabricaFuente(this) }
     private val hilo: ExecutorService = Executors.newSingleThreadExecutor()
 
     /** Mientras se muestra el inicio de sesión: al volver, lo resuelve [pedirSesion]. */
@@ -104,13 +105,28 @@ class MisPolizasActivity : AppCompatActivity() {
     }
 
     private fun mostrar(resultado: ResultadoPolizas) {
+        mostrarAviso(if (resultado is ResultadoPolizas.DesdeCache) resultado.guardadoEn else null)
         when (resultado) {
-            is ResultadoPolizas.Listadas ->
-                if (resultado.polizas.isEmpty()) mostrarSolo(binding.vacio) else mostrarLista(resultado.polizas)
+            is ResultadoPolizas.Listadas -> mostrarPolizas(resultado.polizas)
+            is ResultadoPolizas.DesdeCache -> mostrarPolizas(resultado.polizas)
             ResultadoPolizas.NoDisponible -> mostrarError(R.string.polizas_error_no_disponible)
             ResultadoPolizas.SinConexion -> mostrarError(R.string.polizas_error_sin_conexion)
             ResultadoPolizas.NoAutenticado -> iniciarSesion()
         }
+    }
+
+    /** D1 criterio 2 (SOLVENTAG5-105): el aviso solo aparece mostrando la copia guardada. */
+    private fun mostrarAviso(guardadoEn: String?) {
+        if (guardadoEn != null) {
+            val locale = FormatoCotizacion.localeDe(resources.configuration.locales[0])
+            binding.avisoSinConexion.text = getString(R.string.billetera_aviso_sin_conexion, FormatoPoliza.fecha(guardadoEn, locale))
+        }
+        binding.avisoSinConexion.visibility = if (guardadoEn != null) View.VISIBLE else View.GONE
+    }
+
+    /** Criterio 3 (SOLVENTAG5-105): sin pólizas y sin copia guardada, el mismo estado vacío. */
+    private fun mostrarPolizas(polizas: List<Poliza>) {
+        if (polizas.isEmpty()) mostrarSolo(binding.vacio) else mostrarLista(polizas)
     }
 
     private fun mostrarLista(polizas: List<Poliza>) {
@@ -150,8 +166,12 @@ class MisPolizasActivity : AppCompatActivity() {
     companion object {
         /** Las pruebas la reemplazan antes de abrir la pantalla, porque carga al iniciar. */
         @VisibleForTesting
-        internal var fabricaFuente: () -> FuentePolizas = {
-            ClientePolizas(AppConfig.actual().apiBaseUrl, token = SesionCliente::idToken)
+        internal var fabricaFuente: (Context) -> FuentePolizas = { contexto ->
+            RepositorioBilletera(
+                fuente = ClientePolizas(AppConfig.actual().apiBaseUrl, token = SesionCliente::idToken),
+                almacen = AlmacenCifradoKeystore(contexto),
+                sub = { SesionCliente.idToken()?.let(DecodificadorJwt::sub) },
+            )
         }
 
         fun intent(contexto: Context): Intent = Intent(contexto, MisPolizasActivity::class.java)

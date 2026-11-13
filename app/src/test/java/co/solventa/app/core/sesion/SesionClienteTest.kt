@@ -28,6 +28,7 @@ class SesionClienteTest {
 
     @After
     fun limpiar() {
+        SesionCliente.alCerrar = {}
         SesionCliente.cerrar()
         SesionCliente.cognito = null
         SesionCliente.reloj = System::currentTimeMillis
@@ -76,5 +77,26 @@ class SesionClienteTest {
 
         assertEquals("id-1", SesionCliente.idToken())
         assertTrue(SesionCliente.iniciada)
+    }
+
+    @Test
+    fun `cerrar avisa con el id token que tenía la sesión`() {
+        iniciar(cognito(ResultadoInicioSesion.NoDisponible))
+        val avisos = mutableListOf<String?>()
+        SesionCliente.alCerrar = { avisos += it }
+
+        SesionCliente.cerrar()
+
+        assertEquals(listOf("id-1"), avisos)
+    }
+
+    @Test
+    fun `sin sesión previa, cerrar avisa con null`() {
+        val avisos = mutableListOf<String?>()
+        SesionCliente.alCerrar = { avisos += it }
+
+        SesionCliente.cerrar()
+
+        assertEquals(listOf<String?>(null), avisos)
     }
 }

@@ -15,6 +15,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import co.solventa.app.R
+import co.solventa.app.core.almacenamiento.AlmacenCifradoKeystore
 import co.solventa.app.core.config.AppConfig
 import co.solventa.app.core.red.PermisoRedLocal
 import co.solventa.app.core.sesion.InicioSesionActivity
@@ -36,7 +37,7 @@ import java.util.concurrent.Executors
 class DetallePolizaActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetallePolizaBinding
-    private val fuente: FuentePolizas by lazy { fabricaFuente() }
+    private val fuente: FuentePolizas by lazy { fabricaFuente(this) }
     private val hilo: ExecutorService = Executors.newSingleThreadExecutor()
     private val polizaId: String by lazy { intent.getStringExtra(EXTRA_POLIZA_ID).orEmpty() }
     private var poliza: Poliza? = null
@@ -99,8 +100,10 @@ class DetallePolizaActivity : AppCompatActivity() {
     }
 
     private fun mostrar(resultado: ResultadoPoliza) {
+        mostrarAviso(if (resultado is ResultadoPoliza.DesdeCache) resultado.guardadoEn else null)
         when (resultado) {
             is ResultadoPoliza.Encontrada -> mostrarPoliza(resultado.poliza)
+            is ResultadoPoliza.DesdeCache -> mostrarPoliza(resultado.poliza)
             ResultadoPoliza.NoEncontrada -> {
                 mostrarError(R.string.detalle_no_encontrada)
                 binding.reintentar.visibility = View.GONE
@@ -109,6 +112,15 @@ class DetallePolizaActivity : AppCompatActivity() {
             ResultadoPoliza.SinConexion -> mostrarError(R.string.polizas_error_sin_conexion)
             ResultadoPoliza.NoAutenticado -> iniciarSesion()
         }
+    }
+
+    /** D1 criterio 2 (SOLVENTAG5-105): el aviso solo aparece mostrando la copia guardada. */
+    private fun mostrarAviso(guardadoEn: String?) {
+        if (guardadoEn != null) {
+            val locale = FormatoCotizacion.localeDe(resources.configuration.locales[0])
+            binding.avisoSinConexion.text = getString(R.string.billetera_aviso_sin_conexion, FormatoPoliza.fecha(guardadoEn, locale))
+        }
+        binding.avisoSinConexion.visibility = if (guardadoEn != null) View.VISIBLE else View.GONE
     }
 
     private fun iniciarSesion() {
@@ -261,8 +273,12 @@ class DetallePolizaActivity : AppCompatActivity() {
 
         /** Las pruebas la reemplazan antes de abrir la pantalla, porque carga al crearse. */
         @VisibleForTesting
-        internal var fabricaFuente: () -> FuentePolizas = {
-            ClientePolizas(AppConfig.actual().apiBaseUrl, token = SesionCliente::idToken)
+        internal var fabricaFuente: (Context) -> FuentePolizas = { contexto ->
+            RepositorioBilletera(
+                fuente = ClientePolizas(AppConfig.actual().apiBaseUrl, token = SesionCliente::idToken),
+                almacen = AlmacenCifradoKeystore(contexto),
+                sub = { SesionCliente.idToken()?.let(DecodificadorJwt::sub) },
+            )
         }
 
         fun intent(contexto: Context, polizaId: String): Intent =

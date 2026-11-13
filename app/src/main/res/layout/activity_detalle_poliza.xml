@@ -21,6 +21,14 @@
             android:text="@string/detalle_titulo"
             android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
+        <!-- SOLVENTAG5-105, D1 criterio 2: solo visible mostrando la copia guardada. -->
+        <TextView
+            android:id="@+id/avisoSinConexion"
+            style="@style/Solventa.AvisoSinConexion"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone"
+            tools:text="@string/billetera_aviso_sin_conexion" />
+
         <LinearLayout
             android:id="@+id/cargando"
             android:layout_width="match_parent"
