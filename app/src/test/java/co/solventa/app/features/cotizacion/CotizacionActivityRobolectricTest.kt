@@ -9,6 +9,8 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import co.solventa.app.R
+import co.solventa.app.core.sesion.InicioSesionActivity
+import co.solventa.app.features.contratacion.ContratacionActivity
 import com.google.android.material.textfield.TextInputLayout
 import com.sun.net.httpserver.HttpServer
 import org.json.JSONObject
@@ -114,6 +116,43 @@ class CotizacionActivityRobolectricTest {
             assertEquals("Cotización N.º 8F1E2D3C", actividad.texto(R.id.numeroCotizacion))
             // Calculada con el perfil del cliente: sin aviso.
             assertFalse(actividad.visible(R.id.avisoSinPerfil))
+        }
+    }
+
+    @Test
+    fun `SOLVENTAG5-96 - contratar abre la contratación de la cotización en pantalla`() {
+        InicioSesionActivity.faltaSesion = { false }
+        abrir(bffFalso(201, cotizada)) { actividad ->
+            actividad.llenarValidos()
+            actividad.cotizarYEsperar()
+            assertTrue(actividad.visible(R.id.contratar))
+
+            actividad.findViewById<View>(R.id.contratar).performClick()
+
+            val siguiente = shadowOf(actividad).nextStartedActivity
+            assertEquals(ContratacionActivity::class.java.name, siguiente.component?.className)
+            assertEquals(
+                "8f1e2d3c-4b5a-4c6d-9e7f-0a1b2c3d4e5f",
+                siguiente.getStringExtra(ContratacionActivity.EXTRA_COTIZACION_ID),
+            )
+        }
+    }
+
+    @Test
+    fun `SOLVENTAG5-96 - sin sesión, contratar pide primero el inicio de sesión`() {
+        InicioSesionActivity.faltaSesion = { true }
+        try {
+            abrir(bffFalso(201, cotizada)) { actividad ->
+                actividad.llenarValidos()
+                actividad.cotizarYEsperar()
+
+                actividad.findViewById<View>(R.id.contratar).performClick()
+
+                val siguiente = shadowOf(actividad).nextStartedActivity
+                assertEquals(InicioSesionActivity::class.java.name, siguiente.component?.className)
+            }
+        } finally {
+            InicioSesionActivity.faltaSesion = { false }
         }
     }
 

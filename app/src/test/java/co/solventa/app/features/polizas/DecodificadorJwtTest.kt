@@ -40,4 +40,18 @@ class DecodificadorJwtTest {
 
         assertNull(DecodificadorJwt.sub("cabecera.$payload.firma"))
     }
+
+    @Test
+    fun `lee el cliente de la sesion (custom cliente_id)`() {
+        val cliente = "1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f"
+
+        assertEquals(cliente, DecodificadorJwt.clienteId(jwt("""{"custom:cliente_id":"$cliente"}""")))
+    }
+
+    @Test
+    fun `un cliente que no es un UUID o que falta devuelve null`() {
+        assertNull(DecodificadorJwt.clienteId(jwt("""{"custom:cliente_id":"no-es-uuid"}""")))
+        assertNull(DecodificadorJwt.clienteId(jwt("""{"sub":"x"}""")))
+        assertNull(DecodificadorJwt.clienteId("no-es-un-jwt"))
+    }
 }

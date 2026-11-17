@@ -72,9 +72,16 @@ class ClienteHttp(
         }
     }
 
-    /** Lanza [IOException] si no hubo respuesta: sin red, tiempo de espera o conexión rechazada. */
+    /**
+     * Lanza [IOException] si no hubo respuesta: sin red, tiempo de espera o conexión rechazada.
+     * [cabeceras] se envían tal cual (la `Idempotency-Key` del cobro, SOLVENTAG5-96).
+     */
     @Throws(IOException::class)
-    fun postJson(ruta: String, cuerpo: JSONObject): RespuestaHttp {
+    fun postJson(
+        ruta: String,
+        cuerpo: JSONObject,
+        cabeceras: Map<String, String> = emptyMap(),
+    ): RespuestaHttp {
         val conexion = URI("$apiBaseUrl$ruta").toURL().openConnection() as HttpURLConnection
         try {
             conexion.requestMethod = "POST"
@@ -83,6 +90,8 @@ class ClienteHttp(
             conexion.doOutput = true
             conexion.setRequestProperty("Content-Type", "$TIPO_JSON; charset=utf-8")
             conexion.setRequestProperty("Accept", TIPO_JSON)
+            conexion.autorizar()
+            cabeceras.forEach { (nombre, valor) -> conexion.setRequestProperty(nombre, valor) }
             conexion.outputStream.use { it.write(cuerpo.toString().toByteArray()) }
 
             val codigo = conexion.responseCode

@@ -16,7 +16,11 @@ import androidx.core.widget.doAfterTextChanged
 import co.solventa.app.R
 import co.solventa.app.core.config.AppConfig
 import co.solventa.app.core.red.PermisoRedLocal
+import co.solventa.app.core.sesion.InicioSesionActivity
+import co.solventa.app.core.sesion.SesionCliente
 import co.solventa.app.databinding.ActivityCotizacionBinding
+import co.solventa.app.features.contratacion.ContratacionActivity
+import co.solventa.app.features.polizas.DecodificadorJwt
 import com.google.android.material.textfield.TextInputLayout
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -37,6 +41,26 @@ class CotizacionActivity : AppCompatActivity() {
     /** El del onboarding, si el cliente viene de ahí; sin él la prima usa el perfil por defecto. */
     private val clienteId: String? by lazy { intent.getStringExtra(EXTRA_CLIENTE_ID) }
     private var cotizando = false
+
+    /** La cotización en pantalla y si se pidió con el cliente de la sesión (SOLVENTAG5-96). */
+    private var cotizacionId: String? = null
+    private var cotizadaConSesion = false
+
+    /** Al tocar «Contratar» sin sesión: tras iniciarla, se cotiza otra vez y se contrata. */
+    private var contratarAlCotizar = false
+
+    /**
+     * SOLVENTAG5-96: el BFF solo deja aceptar una cotización del cliente de la sesión, así que al
+     * volver del inicio de sesión se cotiza otra vez con los mismos datos y ese cliente.
+     */
+    private val pedirSesion = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { resultado ->
+        if (resultado.resultCode == RESULT_OK) {
+            contratarAlCotizar = true
+            cotizar()
+        }
+    }
 
     /** Solo en dev: Android 17 pide permiso para llegar al BFF local (ver src/dev/AndroidManifest). */
     private val pedirRedLocal = registerForActivityResult(
@@ -67,6 +91,8 @@ class CotizacionActivity : AppCompatActivity() {
         observar(binding.entidad, CampoCotizacion.ENTIDAD)
         binding.cotizar.setOnClickListener { cotizar() }
         binding.nuevaCotizacion.setOnClickListener { mostrarFormulario() }
+        binding.contratar.setOnClickListener { contratar() }
+        InicioSesionActivity.configurar()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -120,7 +146,8 @@ class CotizacionActivity : AppCompatActivity() {
      */
     private fun cotizar() {
         if (cotizando) return
-        val solicitud = ValidadorCotizacion.solicitud(datos(), clienteId) ?: return
+        val datos = datos()
+        if (ValidadorCotizacion.solicitud(datos, clienteId) == null) return
         if (PermisoRedLocal.falta(this)) {
             pedirRedLocal.launch(PermisoRedLocal.PERMISO)
             return
@@ -128,8 +155,17 @@ class CotizacionActivity : AppCompatActivity() {
         binding.mensajeError.visibility = View.GONE
         mostrarCotizando(true)
         hilo.execute {
-            val resultado = cliente.cotizar(solicitud)
-            runOnUiThread { if (!isDestroyed) mostrar(resultado) }
+            // Con sesión, el cliente del token (SOLVENTAG5-96); lee el token fuera del hilo
+            // principal porque puede renovarlo.
+            val deSesion = SesionCliente.idToken()?.let(DecodificadorJwt::clienteId)
+            val solicitud = ValidadorCotizacion.solicitud(datos, deSesion ?: clienteId)
+            val resultado = solicitud?.let(cliente::cotizar) ?: ResultadoCotizacion.NoDisponible
+            runOnUiThread {
+                if (!isDestroyed) {
+                    cotizadaConSesion = deSesion != null
+                    mostrar(resultado)
+                }
+            }
         }
     }
 
@@ -169,6 +205,7 @@ class CotizacionActivity : AppCompatActivity() {
 
     /** Criterio 2: la prima estimada en pantalla, con su vigencia y el número de cotización. */
     private fun mostrarCotizacion(cotizacion: Cotizacion) {
+        cotizacionId = cotizacion.cotizacionId
         val locale = FormatoCotizacion.localeDe(resources.configuration.locales[0])
         binding.prima.text = FormatoCotizacion.pesos(cotizacion.prima, cotizacion.moneda, locale)
         binding.vigencia.text = getString(
@@ -186,6 +223,29 @@ class CotizacionActivity : AppCompatActivity() {
         binding.avisoSinPerfil.visibility = if (aviso == null) View.GONE else View.VISIBLE
         binding.formulario.visibility = View.GONE
         binding.resultado.visibility = View.VISIBLE
+        if (contratarAlCotizar) {
+            contratarAlCotizar = false
+            contratar()
+        }
+    }
+
+    /**
+     * SOLVENTAG5-96: contratar pide la sesión del cliente. Sin ella, primero el inicio de sesión;
+     * una cotización hecha sin la sesión se repite con su cliente antes de contratar.
+     */
+    private fun contratar() {
+        val id = cotizacionId ?: return
+        when {
+            InicioSesionActivity.faltaSesion() -> {
+                SesionCliente.cerrar()
+                pedirSesion.launch(InicioSesionActivity.intent(this))
+            }
+            AppConfig.actual().conInicioDeSesion && !cotizadaConSesion -> {
+                contratarAlCotizar = true
+                cotizar()
+            }
+            else -> startActivity(ContratacionActivity.intent(this, id))
+        }
     }
 
     private fun contenedorDe(campo: CampoCotizacion): TextInputLayout = when (campo) {
@@ -212,6 +272,7 @@ class CotizacionActivity : AppCompatActivity() {
     }
 
     private fun mostrarFormulario() {
+        cotizacionId = null
         binding.resultado.visibility = View.GONE
         binding.formulario.visibility = View.VISIBLE
     }

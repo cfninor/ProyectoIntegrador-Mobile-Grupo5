@@ -18,4 +18,11 @@ class AppConfigTest {
 
         assertTrue(config.apiBaseUrl.startsWith("http://") || config.apiBaseUrl.startsWith("https://"))
     }
+
+    @Test
+    fun `la URL de la pasarela de pagos es absoluta`() {
+        val config = AppConfig.actual()
+
+        assertTrue(config.pasarelaUrl.startsWith("http://") || config.pasarelaUrl.startsWith("https://"))
+    }
 }
