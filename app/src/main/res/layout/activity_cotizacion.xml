@@ -181,12 +181,20 @@
                 android:textColor="?attr/colorOnSecondaryContainer"
                 android:visibility="gone" />
 
+            <!-- SOLVENTAG5-96: desde la cotización vigente, el cliente acepta la oferta. -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/contratar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="@string/cotizacion_contratar" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/nuevaCotizacion"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/cotizacion_nueva" />
         </LinearLayout>
     </LinearLayout>

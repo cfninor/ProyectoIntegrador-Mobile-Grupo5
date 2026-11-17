@@ -24,6 +24,9 @@ android {
     // -Psolventa.cognitoClienteMovilId=<cognito/cliente-movil-id de SSM>.
     val apiBaseUrlDev = providers.gradleProperty("solventa.apiBaseUrl").orNull ?: "http://10.0.2.2:8011"
     val cognitoClienteMovilId = providers.gradleProperty("solventa.cognitoClienteMovilId").orNull ?: ""
+    // La pasarela de pagos simulada (SOLVENTAG5-96): la app tokeniza la tarjeta directo con ella,
+    // como el portal. En dev contra AWS: -Psolventa.pasarelaUrl=<pasarela_url de Terraform>.
+    val pasarelaUrlDev = providers.gradleProperty("solventa.pasarelaUrl").orNull ?: "http://10.0.2.2:8005"
     defaultConfig {
         buildConfigField("String", "COGNITO_REGION", "\"us-east-1\"")
         buildConfigField("String", "COGNITO_CLIENTE_MOVIL_ID", "\"$cognitoClienteMovilId\"")
@@ -40,6 +43,8 @@ android {
             // 10.0.2.2 es el equipo anfitrión visto desde el emulador; 8011 es el bff-movil
             // del docker-compose del repositorio principal.
             buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrlDev\"")
+            // 8005 es el sim-pasarela-pagos del docker-compose.
+            buildConfigField("String", "PASARELA_URL", "\"$pasarelaUrlDev\"")
         }
         create("qa") {
             dimension = "ambiente"
@@ -47,11 +52,13 @@ android {
             versionNameSuffix = "-qa"
             // Se reemplaza cuando exista el ambiente QA en AWS.
             buildConfigField("String", "API_BASE_URL", "\"https://bff-movil.qa.solventa.invalid\"")
+            buildConfigField("String", "PASARELA_URL", "\"https://pasarela.qa.solventa.invalid\"")
         }
         create("prod") {
             dimension = "ambiente"
             // Se reemplaza cuando exista el ambiente PROD en AWS.
             buildConfigField("String", "API_BASE_URL", "\"https://bff-movil.solventa.invalid\"")
+            buildConfigField("String", "PASARELA_URL", "\"https://pasarela.solventa.invalid\"")
         }
     }
 

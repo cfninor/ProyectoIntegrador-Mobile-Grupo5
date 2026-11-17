@@ -55,6 +55,12 @@
             android:name=".features.polizas.DetallePolizaActivity"
             android:exported="false" />
 
+        <!-- Contratación desde la app (SOLVENTAG5-96). -->
+        <activity
+            android:name=".features.contratacion.ContratacionActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
         <!-- Comparte con el visor de PDF los documentos de la póliza descargados en la caché
              privada, solo con permiso de lectura y solo para esa apertura. -->
         <provider
