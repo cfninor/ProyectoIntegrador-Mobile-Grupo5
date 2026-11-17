@@ -239,4 +239,25 @@ Huella del documento: %3$s</string>
         <item quantity="many">El código no es correcto. Te quedan %d intentos.</item>
         <item quantity="other">El código no es correcto. Te quedan %d intentos.</item>
     </plurals>
+
+    <!-- Confirmación de la contratación (SOLVENTAG5-97). -->
+    <string name="confirmacion_paso">Paso 4 de 4</string>
+    <string name="confirmacion_cargando">Cargando tu póliza…</string>
+    <string name="confirmacion_emitiendo">Estamos emitiendo tu póliza. Esto tarda unos segundos; puedes esperar aquí.</string>
+    <string name="confirmacion_titulo">¡Tu póliza fue emitida!</string>
+    <string name="confirmacion_subtitulo">Ya estás protegido. Guarda tu número de póliza.</string>
+    <string name="confirmacion_numero">Número de póliza</string>
+    <string name="confirmacion_producto">Producto</string>
+    <string name="confirmacion_cobertura">Cobertura</string>
+    <string name="confirmacion_cobertura_valor">%1$s de suma asegurada</string>
+    <string name="confirmacion_prima">Prima final</string>
+    <string name="confirmacion_vigencia">Vigencia</string>
+    <string name="confirmacion_estado">Estado</string>
+    <string name="confirmacion_ver_poliza">Ver mi póliza</string>
+    <string name="confirmacion_ir_al_inicio">Ir al inicio</string>
+    <string name="confirmacion_reintentar">Reintentar</string>
+    <string name="confirmacion_ver">Ver confirmación</string>
+    <string name="confirmacion_error_no_encontrada">No encontramos esta póliza en tu cuenta.</string>
+    <string name="confirmacion_error_no_disponible">No pudimos cargar tu póliza. Intenta de nuevo en unos minutos.</string>
+    <string name="confirmacion_error_sin_conexion">Sin conexión y sin una copia guardada de esta póliza. La cargaremos cuando vuelva la red.</string>
 </resources>

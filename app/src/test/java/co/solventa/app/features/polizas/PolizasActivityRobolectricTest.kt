@@ -126,6 +126,24 @@ class PolizasActivityRobolectricTest {
     }
 
     @Test
+    fun `SOLVENTAG5-97 - desde Mis pólizas se vuelve a abrir la confirmación`() {
+        lista { actividad ->
+            val tarjeta = actividad.findViewById<ViewGroup>(R.id.lista).getChildAt(0)
+            tarjeta.findViewById<View>(R.id.verConfirmacion).performClick()
+
+            val abierta = siguiente(actividad)
+            assertEquals(
+                co.solventa.app.features.contratacion.ConfirmacionActivity::class.java.name,
+                abierta?.component?.className,
+            )
+            assertEquals(
+                PolizasPrueba.POLIZA_ID,
+                abierta?.getStringExtra(co.solventa.app.features.contratacion.ConfirmacionActivity.EXTRA_POLIZA_ID),
+            )
+        }
+    }
+
+    @Test
     fun `sin pólizas muestra el estado vacío que lleva a cotizar`() {
         fuente.lista = ResultadoPolizas.Listadas(emptyList())
         lista { actividad ->

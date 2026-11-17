@@ -23,7 +23,6 @@ import co.solventa.app.databinding.ActivityContratacionBinding
 import co.solventa.app.features.cotizacion.FormatoCotizacion
 import co.solventa.app.features.onboarding.OnboardingActivity
 import co.solventa.app.features.polizas.DecodificadorJwt
-import co.solventa.app.features.polizas.DetallePolizaActivity
 import co.solventa.app.features.polizas.FormatoPoliza
 import co.solventa.app.features.pruebavida.PruebaVidaActivity
 import java.util.Locale
@@ -302,13 +301,12 @@ class ContratacionActivity : AppCompatActivity() {
         documento.huella.take(LARGO_HUELLA),
     )
 
+    /** SOLVENTAG5-97: con la póliza emitida, la confirmación «¡Tu póliza fue emitida!». */
     private fun mostrarEmitida(emitida: Paso.Emitida) {
         binding.estado.setText(R.string.contratacion_emitida)
         binding.detalle.text = getString(R.string.contratacion_emitida_detalle, emitida.poliza.numero.orEmpty())
-        accion(R.string.contratacion_ver_poliza) {
-            startActivity(DetallePolizaActivity.intent(this, emitida.poliza.polizaId))
-            finish()
-        }
+        startActivity(ConfirmacionActivity.intent(this, emitida.poliza.polizaId))
+        finish()
     }
 
     /** Criterio 4: sin la identidad verificada, la app lleva a terminar el onboarding. */

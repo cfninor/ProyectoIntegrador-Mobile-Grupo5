@@ -19,6 +19,7 @@ import co.solventa.app.core.sesion.InicioSesionActivity
 import co.solventa.app.core.sesion.SesionCliente
 import co.solventa.app.databinding.ActivityMisPolizasBinding
 import co.solventa.app.databinding.ItemPolizaBinding
+import co.solventa.app.features.contratacion.ConfirmacionActivity
 import co.solventa.app.features.cotizacion.CotizacionActivity
 import co.solventa.app.features.cotizacion.FormatoCotizacion
 import java.util.concurrent.ExecutorService
@@ -145,6 +146,9 @@ class MisPolizasActivity : AppCompatActivity() {
             tarjeta.root.contentDescription = getString(R.string.poliza_abrir_detalle, poliza.numero ?: numero)
             tarjeta.root.setOnClickListener {
                 startActivity(DetallePolizaActivity.intent(this, poliza.polizaId))
+            }
+            tarjeta.verConfirmacion.setOnClickListener {
+                startActivity(ConfirmacionActivity.intent(this, poliza.polizaId))
             }
             binding.lista.addView(tarjeta.root)
         }

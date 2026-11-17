@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Confirmación de la contratación (SOLVENTAG5-97): «¡Tu póliza fue emitida!», «Paso 4 de 4». -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/raiz"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/confirmacion_paso"
+            android:textAppearance="?attr/textAppearanceLabelLarge" />
+
+        <!-- Criterio 3: el último estado conocido, sin bloquear la app, con la fecha en que se guardó. -->
+        <TextView
+            android:id="@+id/avisoSinConexion"
+            style="@style/Solventa.AvisoSinConexion"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone"
+            tools:text="@string/billetera_aviso_sin_conexion" />
+
+        <!-- Criterio 2: mientras la emisión no termina, un estado intermedio (la app consulta). -->
+        <LinearLayout
+            android:id="@+id/cargando"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="48dp">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/textoCargando"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:accessibilityLiveRegion="polite"
+                android:gravity="center"
+                android:text="@string/confirmacion_cargando"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/contenido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/confirmacion_titulo"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/confirmacion_subtitulo"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        style="@style/Solventa.EtiquetaConfirmacion"
+                        android:layout_marginTop="0dp"
+                        android:text="@string/confirmacion_numero" />
+
+                    <TextView
+                        android:id="@+id/numero"
+                        style="@style/Solventa.ValorConfirmacion"
+                        android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+                    <TextView
+                        style="@style/Solventa.EtiquetaConfirmacion"
+                        android:text="@string/confirmacion_producto" />
+
+                    <TextView
+                        android:id="@+id/producto"
+                        style="@style/Solventa.ValorConfirmacion" />
+
+                    <TextView
+                        style="@style/Solventa.EtiquetaConfirmacion"
+                        android:text="@string/confirmacion_cobertura" />
+
+                    <TextView
+                        android:id="@+id/cobertura"
+                        style="@style/Solventa.ValorConfirmacion" />
+
+                    <TextView
+                        style="@style/Solventa.EtiquetaConfirmacion"
+                        android:text="@string/confirmacion_prima" />
+
+                    <TextView
+                        android:id="@+id/prima"
+                        style="@style/Solventa.ValorConfirmacion" />
+
+                    <TextView
+                        style="@style/Solventa.EtiquetaConfirmacion"
+                        android:text="@string/confirmacion_vigencia" />
+
+                    <TextView
+                        android:id="@+id/vigencia"
+                        style="@style/Solventa.ValorConfirmacion" />
+
+                    <TextView
+                        style="@style/Solventa.EtiquetaConfirmacion"
+                        android:text="@string/confirmacion_estado" />
+
+                    <TextView
+                        android:id="@+id/estado"
+                        style="@style/Solventa.ValorConfirmacion"
+                        android:textColor="?attr/colorPrimary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/verPoliza"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/confirmacion_ver_poliza" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/irAlInicio"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/confirmacion_ir_al_inicio" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="48dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/mensajeError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="assertive"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reintentar"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/confirmacion_reintentar" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
