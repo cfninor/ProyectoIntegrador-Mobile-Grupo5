@@ -9,7 +9,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import co.solventa.app.R
 import co.solventa.app.core.sesion.InicioSesionActivity
 import co.solventa.app.features.onboarding.OnboardingActivity
-import co.solventa.app.features.polizas.DetallePolizaActivity
 import com.google.android.material.textfield.TextInputLayout
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -97,11 +96,11 @@ class ContratacionActivityRobolectricTest {
             assertTrue(actividad.findViewById<View>(R.id.firmar).isEnabled)
             actividad.tocar(R.id.firmar) { it is Paso.Emitida }
 
-            assertEquals("¡Tu póliza fue emitida!", actividad.texto(R.id.estado))
-            assertTrue(actividad.texto(R.id.detalle).contains("SV-VH-2026-000001"))
-            actividad.findViewById<View>(R.id.accion).performClick()
+            // SOLVENTAG5-97: emitida, abre la confirmación de la póliza y se cierra.
             val siguiente = shadowOf(actividad).nextStartedActivity
-            assertEquals(DetallePolizaActivity::class.java.name, siguiente.component?.className)
+            assertEquals(ConfirmacionActivity::class.java.name, siguiente.component?.className)
+            assertEquals(ContratacionPrueba.POLIZA_ID, siguiente.getStringExtra(ConfirmacionActivity.EXTRA_POLIZA_ID))
+            assertTrue(actividad.isFinishing)
         }
         assertTrue(fuente.llamadas.containsAll(listOf("aceptarOferta", "generarPoliza", "cobrar tok-1", "firmar 123456", "emitir")))
     }

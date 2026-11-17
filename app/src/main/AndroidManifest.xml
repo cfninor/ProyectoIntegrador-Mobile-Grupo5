@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- SOLVENTAG5-97: saber cuándo vuelve la red para actualizar la confirmación. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Prueba de vida por selfie (SOLVENTAG5-90, D5). -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -60,6 +62,11 @@
             android:name=".features.contratacion.ContratacionActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <!-- Confirmación de la contratación (SOLVENTAG5-97). -->
+        <activity
+            android:name=".features.contratacion.ConfirmacionActivity"
+            android:exported="false" />
 
         <!-- Comparte con el visor de PDF los documentos de la póliza descargados en la caché
              privada, solo con permiso de lectura y solo para esa apertura. -->

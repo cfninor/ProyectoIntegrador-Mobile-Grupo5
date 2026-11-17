@@ -235,4 +235,25 @@ Document fingerprint: %3$s</string>
         <item quantity="one">The code is not correct. You have %d attempt left.</item>
         <item quantity="other">The code is not correct. You have %d attempts left.</item>
     </plurals>
+
+    <!-- Purchase confirmation (SOLVENTAG5-97). -->
+    <string name="confirmacion_paso">Step 4 of 4</string>
+    <string name="confirmacion_cargando">Loading your policy…</string>
+    <string name="confirmacion_emitiendo">We are issuing your policy. It takes a few seconds; you can wait here.</string>
+    <string name="confirmacion_titulo">Your policy has been issued!</string>
+    <string name="confirmacion_subtitulo">You are now covered. Keep your policy number.</string>
+    <string name="confirmacion_numero">Policy number</string>
+    <string name="confirmacion_producto">Product</string>
+    <string name="confirmacion_cobertura">Coverage</string>
+    <string name="confirmacion_cobertura_valor">%1$s sum insured</string>
+    <string name="confirmacion_prima">Final premium</string>
+    <string name="confirmacion_vigencia">Coverage period</string>
+    <string name="confirmacion_estado">Status</string>
+    <string name="confirmacion_ver_poliza">View my policy</string>
+    <string name="confirmacion_ir_al_inicio">Go to home</string>
+    <string name="confirmacion_reintentar">Try again</string>
+    <string name="confirmacion_ver">View confirmation</string>
+    <string name="confirmacion_error_no_encontrada">We could not find this policy in your account.</string>
+    <string name="confirmacion_error_no_disponible">We could not load your policy. Please try again in a few minutes.</string>
+    <string name="confirmacion_error_sin_conexion">You are offline and there is no saved copy of this policy. We will load it when the connection is back.</string>
 </resources>

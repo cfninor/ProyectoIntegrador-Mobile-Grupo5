@@ -28,4 +28,19 @@
         <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
         <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
     </style>
+
+    <!-- Confirmación de la contratación (SOLVENTAG5-97): etiqueta y valor de cada dato. -->
+    <style name="Solventa.EtiquetaConfirmacion" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
+    </style>
+
+    <style name="Solventa.ValorConfirmacion" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+    </style>
 </resources>

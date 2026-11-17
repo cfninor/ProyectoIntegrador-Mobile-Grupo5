@@ -49,5 +49,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textAppearance="?attr/textAppearanceBodySmall" />
+
+        <!-- SOLVENTAG5-97: la confirmación de la contratación se vuelve a abrir desde aquí. -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/verConfirmacion"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:minHeight="48dp"
+            android:text="@string/confirmacion_ver" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
