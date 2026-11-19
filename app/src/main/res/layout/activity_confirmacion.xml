@@ -64,6 +64,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/confirmacion_titulo"
+                android:accessibilityHeading="true"
+                tools:targetApi="28"
                 android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
             <TextView

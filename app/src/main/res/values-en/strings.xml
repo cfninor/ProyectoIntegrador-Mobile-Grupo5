@@ -46,6 +46,7 @@
     <string name="prueba_vida_cargando">Preparing your liveness check…</string>
     <string name="prueba_vida_enviando">Sending your captures…</string>
     <string name="prueba_vida_intento">Attempt %1$d of 3 · %2$d left</string>
+    <string name="prueba_vida_camara">Front camera. Place your face inside the oval and follow the instruction.</string>
     <string name="prueba_vida_capturar">Capture</string>
     <string name="prueba_vida_gesto_parpadear">Blink</string>
     <string name="prueba_vida_gesto_girar_izquierda">Turn your face to the left</string>
@@ -89,6 +90,7 @@
     <string name="cotizacion_plazo">Loan term (years)</string>
     <string name="cotizacion_ciudad">Property city</string>
     <string name="cotizacion_entidad">Lender</string>
+    <string name="cotizacion_entidad_ayuda">The bank or institution lending you the money</string>
     <string name="cotizacion_cotizar">Get quote</string>
     <string name="cotizacion_error_obligatorio">This field is required</string>
     <string name="cotizacion_error_monto">Must be between COP 10,000,000 and COP 1,200,000,000</string>
@@ -209,7 +211,6 @@ Document fingerprint: %3$s</string>
     <string name="contratacion_reenviar">Send the code again</string>
     <string name="contratacion_emitida">Your policy has been issued!</string>
     <string name="contratacion_emitida_detalle">Policy number: %1$s. You are now covered.</string>
-    <string name="contratacion_ver_poliza">View my policy</string>
     <string name="contratacion_kyc">Finish verifying your identity</string>
     <string name="contratacion_kyc_detalle">To buy a policy we need to verify that it is you. Finish your onboarding and come back to this quote.</string>
     <string name="contratacion_kyc_en_revision">Your identity verification is under manual review. You will be able to buy once it is approved.</string>
