@@ -135,7 +135,7 @@
     <string name="poliza_estado_cancelada">Cancelada</string>
     <string name="poliza_estado_vencida">Vencida</string>
     <string name="poliza_estado_desconocido">Sin estado</string>
-    <string name="poliza_abrir_detalle">Ver el detalle de la póliza %1$s</string>
+    <string name="poliza_accion_ver_detalle">ver el detalle</string>
     <string name="detalle_titulo">Detalle de la póliza</string>
     <string name="detalle_cargando">Cargando la póliza…</string>
     <string name="detalle_no_encontrada">No encontramos esta póliza.</string>

@@ -10,6 +10,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.WindowInsetsCompat
 import co.solventa.app.R
 import co.solventa.app.core.almacenamiento.AlmacenCifradoKeystore
@@ -143,7 +144,14 @@ class MisPolizasActivity : AppCompatActivity() {
                 R.string.poliza_vigencia,
                 FormatoPoliza.vigencia(poliza.vigenciaDesde, poliza.vigenciaHasta, locale),
             )
-            tarjeta.root.contentDescription = getString(R.string.poliza_abrir_detalle, poliza.numero ?: numero)
+            // SOLVENTAG5-344: sin contentDescription, TalkBack lee toda la tarjeta (producto, estado,
+            // número y vigencia) y anuncia la acción «ver el detalle» en vez de «activar».
+            ViewCompat.replaceAccessibilityAction(
+                tarjeta.root,
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK,
+                getString(R.string.poliza_accion_ver_detalle),
+                null,
+            )
             tarjeta.root.setOnClickListener {
                 startActivity(DetallePolizaActivity.intent(this, poliza.polizaId))
             }

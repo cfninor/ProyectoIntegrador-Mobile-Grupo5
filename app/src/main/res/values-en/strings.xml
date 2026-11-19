@@ -132,7 +132,7 @@
     <string name="poliza_estado_cancelada">Cancelled</string>
     <string name="poliza_estado_vencida">Expired</string>
     <string name="poliza_estado_desconocido">No status</string>
-    <string name="poliza_abrir_detalle">View the details of policy %1$s</string>
+    <string name="poliza_accion_ver_detalle">view details</string>
     <string name="detalle_titulo">Policy details</string>
     <string name="detalle_cargando">Loading the policy…</string>
     <string name="detalle_no_encontrada">We could not find this policy.</string>
