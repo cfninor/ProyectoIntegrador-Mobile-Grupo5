@@ -20,6 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/contratacion_titulo"
+            android:accessibilityHeading="true"
+            tools:targetApi="28"
             android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
         <TextView

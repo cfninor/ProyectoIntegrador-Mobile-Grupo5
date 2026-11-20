@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -16,6 +17,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -112,6 +114,35 @@ class PolizasActivityRobolectricTest {
             val segunda = tarjetas.getChildAt(1)
             assertEquals("Póliza en proceso de emisión", segunda.findViewById<TextView>(R.id.numero).text.toString())
             assertEquals("Pendiente de firma", segunda.findViewById<TextView>(R.id.estado).text.toString())
+        }
+    }
+
+    @Test
+    fun `SOLVENTAG5-344 - TalkBack lee la tarjeta completa y anuncia la acción ver el detalle`() {
+        lista { actividad ->
+            val tarjeta = actividad.findViewById<ViewGroup>(R.id.lista).getChildAt(0)
+            val info = AccessibilityNodeInfoCompat.wrap(tarjeta.createAccessibilityNodeInfo())
+
+            // Sin contentDescription, TalkBack junta el producto, el estado, el número y la vigencia.
+            assertNull(tarjeta.contentDescription)
+            val clic = info.actionList.single { it.id == AccessibilityNodeInfoCompat.ACTION_CLICK }
+            assertEquals("ver el detalle", clic.label)
+        }
+    }
+
+    @Test
+    fun `SOLVENTAG5-344 - cada fila del detalle se lee con su etiqueta y su valor juntos`() {
+        detalle { actividad ->
+            listOf(
+                R.id.filaTomador,
+                R.id.filaSumaAsegurada,
+                R.id.filaPrima,
+                R.id.filaBeneficiario,
+                R.id.filaVigencia,
+                R.id.filaProximoCobro,
+            ).forEach { fila ->
+                assertTrue(actividad.findViewById<View>(fila).isScreenReaderFocusable)
+            }
         }
     }
 

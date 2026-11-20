@@ -2,6 +2,7 @@
 <!-- Prueba de vida por selfie (SOLVENTAG5-90): captura con CameraX guiada por un óvalo y un
      gesto, y el resultado que decide el proveedor KYC. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/raiz"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -40,6 +41,7 @@
             android:id="@+id/gesto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
             android:gravity="center"
             android:textAppearance="?attr/textAppearanceTitleMedium" />
 
@@ -60,13 +62,16 @@
             <androidx.camera.view.PreviewView
                 android:id="@+id/vistaPrevia"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:contentDescription="@string/prueba_vida_camara" />
 
+            <!-- Guía visual decorativa: TalkBack la omite, la instrucción va en el gesto. -->
             <View
                 android:layout_width="240dp"
                 android:layout_height="320dp"
                 android:layout_gravity="center"
-                android:background="@drawable/ovalo_guia" />
+                android:background="@drawable/ovalo_guia"
+                android:importantForAccessibility="no" />
         </FrameLayout>
 
         <TextView
@@ -102,6 +107,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:accessibilityHeading="true"
+            tools:targetApi="28"
             android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
         <TextView

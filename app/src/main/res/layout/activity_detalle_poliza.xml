@@ -115,6 +115,8 @@
 
             <LinearLayout
                 android:id="@+id/filaTomador"
+                android:screenReaderFocusable="true"
+                tools:targetApi="28"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -136,6 +138,8 @@
 
             <LinearLayout
                 android:id="@+id/filaSumaAsegurada"
+                android:screenReaderFocusable="true"
+                tools:targetApi="28"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -157,6 +161,8 @@
 
             <LinearLayout
                 android:id="@+id/filaPrima"
+                android:screenReaderFocusable="true"
+                tools:targetApi="28"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -178,6 +184,8 @@
 
             <LinearLayout
                 android:id="@+id/filaBeneficiario"
+                android:screenReaderFocusable="true"
+                tools:targetApi="28"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -199,6 +207,8 @@
 
             <LinearLayout
                 android:id="@+id/filaVigencia"
+                android:screenReaderFocusable="true"
+                tools:targetApi="28"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -220,6 +230,8 @@
 
             <LinearLayout
                 android:id="@+id/filaProximoCobro"
+                android:screenReaderFocusable="true"
+                tools:targetApi="28"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
